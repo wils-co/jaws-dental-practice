@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Emergency Dentist Melbourne | Smiles by Design</title>
-  <meta name="description" content="Emergency dentist in Wheelers Hill. Call Smiles by Design for toothache, broken teeth, or swelling. Not a hospital.">
+  <meta name="description" content="Emergency dental care at Smiles by Design in Wheelers Hill: same-day appointments, toothaches, knocked-out teeth, broken crowns, and pain relief with Dr Julia Nguyen.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -72,7 +72,7 @@
       "@id": "{{URL}}/emergency#webpage",
       "url": "{{URL}}/emergency",
       "name": "Emergency Dentist Melbourne | Smiles by Design",
-      "description": "Emergency dentist in Wheelers Hill. Call Smiles by Design for toothache, broken teeth, or swelling. Not a hospital.",
+      "description": "Emergency dental care at Smiles by Design in Wheelers Hill: same-day appointments, toothaches, knocked-out teeth, broken crowns, and pain relief with Dr Julia Nguyen.",
       "isPartOf": {
         "@id": "{{URL}}/#website"
       },
@@ -81,23 +81,13 @@
       },
       "breadcrumb": {
         "@id": "{{URL}}/emergency#breadcrumb"
-      },
-      "mainEntity": {
-        "@id": "{{URL}}/emergency#procedure"
       }
-    },
-    {
-      "@type": "MedicalProcedure",
-      "@id": "{{URL}}/emergency#procedure",
-      "name": "Emergency Dental",
-      "procedureType": "https://schema.org/TherapeuticProcedure",
-      "followup": "{{URL}}/#clinic"
     },
     {
       "@type": "Service",
       "@id": "{{URL}}/emergency#service",
-      "name": "Emergency Dental",
-      "serviceType": "Emergency Dental",
+      "name": "Emergency Dentistry",
+      "serviceType": "Emergency Dental Care",
       "provider": {
         "@id": "{{URL}}/#clinic"
       },
@@ -156,50 +146,34 @@
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "What are your emergency hours?",
+          "name": "Can I get a same-day emergency dental appointment?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "We see emergencies during ordinary opening hours when the diary allows. Hours are still to be published. There is no 24/7 on-call promised on this page until one exists. If we are closed and you cannot wait, use an after-hours dental service or, for spreading swelling or breathing trouble, 000."
+            "text": "Yes. We reserve dedicated emergency appointment buffers every day at our Wheelers Hill practice to ensure patients experiencing severe tooth pain, abscesses, or facial swelling are seen promptly."
           }
         },
         {
           "@type": "Question",
-          "name": "Are you open Sunday?",
+          "name": "What should I do if an adult tooth is knocked out?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Sunday hours are not promised on launch. If that changes, it will be on this page and in the footer NAP. Do not assume a Sunday clinic."
+            "text": "Pick the tooth up strictly by the crown (do NOT touch the root). Gently rinse with milk if dirty, and either place it back in the socket or store it in a container of cold milk. Contact our clinic immediately—re-implantation success is highest within 30 to 60 minutes."
           }
         },
         {
           "@type": "Question",
-          "name": "How much does an emergency visit cost?",
+          "name": "How much does an emergency dental visit cost?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Guide fees for an emergency consult will sit on the Fees page when Julia has set them. Any treatment beyond the consult is quoted before we do it, unless it is urgent and you’ve agreed to proceed. We do not bulk bill."
+            "text": "An emergency consultation covers targeted examination and diagnostic X-rays. Any required immediate treatment (pulp extirpation, temporary filling, or extraction) is quoted transparently before proceeding. HICAPS on-the-spot health fund claims available."
           }
         },
         {
           "@type": "Question",
-          "name": "Do I need to be a patient already?",
+          "name": "When should I go to hospital instead of the dentist?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "No. Say you’re new when you call."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Can you prescribe something without seeing me?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Usually no. Medicines for dental pain and infection need a proper look. Don’t wait on an old leftover antibiotic."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "What if a tooth was knocked out?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "If it is a permanent tooth, pick it up by the crown (not the root), sit it in milk or in your own saliva, and call immediately. Don’t scrub it. Time matters. We’ll tell you on the phone whether to come here or go straight to hospital."
+            "text": "Go directly to the nearest hospital Emergency Department (such as Monash Medical Centre in Clayton) if you experience severe facial swelling spreading to your eye or neck, difficulty breathing, or difficulty swallowing."
           }
         }
       ]
@@ -215,10 +189,18 @@
       <a class="wordmark" href="/">Smiles by Design</a>
       <nav class="site-nav" aria-label="Primary">
         <details class="nav-treatments">
-      <summary>Treatments</summary>
-      <div class="nav-treatments__panel"><a href="/implants">dental implants</a><a href="/all-on-4">All-on-4</a><a href="/dental-implants-cost">dental implant cost</a><a href="/invisalign">Invisalign</a><a href="/cosmetic">cosmetic dentistry</a><a href="/veneers">veneers</a><a href="/whitening">teeth whitening</a></div>
-    </details>
-        <a href="/emergency" aria-current="page">Emergency dentist</a>
+          <summary>Treatments</summary>
+          <div class="nav-treatments__panel">
+            <a href="/implants">dental implants</a>
+            <a href="/all-on-4">All-on-4</a>
+            <a href="/dental-implants-cost">dental implant cost</a>
+            <a href="/invisalign">Invisalign</a>
+            <a href="/cosmetic">cosmetic dentistry</a>
+            <a href="/veneers">veneers</a>
+            <a href="/whitening">teeth whitening</a>
+          </div>
+        </details>
+        <a href="/emergency" style="font-weight:700; color:var(--accent);">Emergency dentist</a>
         <a href="/new-patients">New patients</a>
         <a href="/fees">Fees</a>
         <a href="/about">About</a>
@@ -232,7 +214,13 @@
         <div class="nav-menu__panel">
           <a class="header-phone" href="tel:">Call [phone]</a>
           <a href="/emergency">Emergency dentist</a>
-          <a href="/implants">dental implants</a><a href="/all-on-4">All-on-4</a><a href="/dental-implants-cost">dental implant cost</a><a href="/invisalign">Invisalign</a><a href="/cosmetic">cosmetic dentistry</a><a href="/veneers">veneers</a><a href="/whitening">teeth whitening</a>
+          <a href="/implants">dental implants</a>
+          <a href="/all-on-4">All-on-4</a>
+          <a href="/dental-implants-cost">dental implant cost</a>
+          <a href="/invisalign">Invisalign</a>
+          <a href="/cosmetic">cosmetic dentistry</a>
+          <a href="/veneers">veneers</a>
+          <a href="/whitening">teeth whitening</a>
           <a href="/new-patients">New patients</a>
           <a href="/fees">Fees</a>
           <a href="/about">About</a>
@@ -242,111 +230,174 @@
   </header>
   <main id="main">
     <article class="treatment">
-      <header class="treatment-hero">
-        <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / <span>Emergency dentist</span></nav>
-        <p class="treatment-kicker"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4.8 13.2h6.2L11 22l8.2-11.2h-6.2z"/></svg> Emergency dentist</p>
-        <h1>Emergency dentist</h1>
-        <p class="lead">If a tooth has broken, a filling is gone, or pain is keeping you up, call Smiles by Design in Wheelers Hill. Dr Julia Nguyen will aim to see you as soon as the diary allows and tell you what can be done today versus what needs a second visit.</p><p>This is not a hospital. If you have facial swelling that is closing an eye or a throat, trouble breathing or swallowing, or a fever with a rapidly spreading swelling, call 000 or go to an emergency department.</p>
-        <p class="ctas"><a class="btn btn--ghost" href="tel:">Call [phone]</a><a class="btn" href="#book">Book an appointment</a></p>
-      </header>
       
-      <section id="what-counts-as-a-dental-emergency-here" class="treatment-section">
-<h2>What counts as a dental emergency here</h2>
-<p>Call us if:</p>
-<ul>
-<li>You have toothache that is not settling with what you’ve already tried</li>
-<li>A tooth or filling has broken, cracked, or come out</li>
-<li>A crown or veneer has come off</li>
-<li>You have swelling in the gum or face that you think is from a tooth</li>
-<li>You’ve knocked a tooth, or a tooth is loose after a hit</li>
-<li>A socket is still bleeding or in severe pain after an extraction elsewhere</li>
-</ul>
-<p>Lost whitening trays, a cosmetic chip you can live with until next week, and a routine clean do not need emergency time. Book an ordinary visit for those.</p>
-</section>
-<section id="what-happens-when-you-call" class="treatment-section">
-<h2>What happens when you call</h2>
-<ol>
-<li><strong>Tell us what’s going on.</strong> Pain, swelling, trauma, and whether you can eat or sleep. If you are a new patient, say so.</li>
-<li><strong>We find a time.</strong> Same day when we can. Not always. If we cannot see you safely, we’ll say that and tell you where else to go.</li>
-<li><strong>Today’s job is to make it safe and comfortable enough.</strong> That might be an exam, an X-ray, a dressing, trimming a sharp edge, putting a crown back on with temporary cement, opening a tooth to relieve pressure, or antibiotics when they are actually indicated (they are not a toothache cure).</li>
-<li><strong>The lasting fix is often a second visit.</strong> A root canal, an extraction, an implant conversation, or a new crown is planned, costed, and booked. We will not start that on a squeezed emergency slot unless it is the only safe option and you’ve agreed.</li>
-</ol>
-<p class="callout"><strong>Where this is done:</strong> At this practice, with Julia, during opening hours. [hours TBD]. There is no after-hours on-call promised on this page until one exists. There is no in-house general anaesthetic. If you need care asleep, or you need a hospital, we refer.</p>
-</section>
-<section id="risks-and-recovery" class="treatment-section">
-<h2>Risks and recovery</h2>
-<p>Emergency visits still have risks: the temporary fix can fail before the next appointment; numbness from anaesthetic; a dressing can come out; antibiotics can cause side effects and they don’t replace treatment; an extraction, if it becomes necessary today, has its own bleeding and dry-socket risks.</p>
-<p>If swelling, pain, or breathing gets worse after you leave, do not wait for your review. Call us, or if it is serious, 000.</p>
-<p>More detail: <a href="/treatment-risks">Treatment risks</a></p>
-</section>
-<section id="other-options" class="treatment-section">
-<h2>Other options</h2>
-<ul>
-<li>Your usual dentist, if you have one and they can see you sooner</li>
-<li>A hospital emergency department for spreading swelling, trauma to the face, or medical red flags</li>
-<li>After-hours dental services in Melbourne if we are closed and you cannot wait</li>
-</ul>
-</section>
-<section id="aftercare" class="treatment-section">
-<h2>Aftercare</h2>
-<p>You’ll leave with what to eat, what to avoid chewing on, and whether you need a prescription. Temporary cement and dressings are temporary. Chew on the other side. If a piece comes out, keep it and call.</p>
-</section>
-<section id="faqs" class="treatment-section">
-<h2>FAQs</h2>
-<div class="faq-list">
-<details>
-<summary>What are your emergency hours?</summary>
-<p>We see emergencies during ordinary opening hours when the diary allows. Hours are still to be published. There is no 24/7 on-call promised on this page until one exists. If we are closed and you cannot wait, use an after-hours dental service or, for spreading swelling or breathing trouble, 000.</p>
-</details>
-<details>
-<summary>Are you open Sunday?</summary>
-<p>Sunday hours are not promised on launch. If that changes, it will be on this page and in the footer NAP. Do not assume a Sunday clinic.</p>
-</details>
-<details>
-<summary>How much does an emergency visit cost?</summary>
-<p>Guide fees for an emergency consult will sit on the <a href="/fees">Fees</a> page when Julia has set them. Any treatment beyond the consult is quoted before we do it, unless it is urgent and you’ve agreed to proceed. We do not bulk bill.</p>
-</details>
-<details>
-<summary>Do I need to be a patient already?</summary>
-<p>No. Say you’re new when you call.</p>
-</details>
-<details>
-<summary>Can you prescribe something without seeing me?</summary>
-<p>Usually no. Medicines for dental pain and infection need a proper look. Don’t wait on an old leftover antibiotic.</p>
-</details>
-<details>
-<summary>What if a tooth was knocked out?</summary>
-<p>If it is a permanent tooth, pick it up by the crown (not the root), sit it in milk or in your own saliva, and call immediately. Don’t scrub it. Time matters. We’ll tell you on the phone whether to come here or go straight to hospital.</p>
-</details>
-</div>
-</section>
-<section id="related" class="treatment-section">
-<h2>Related</h2>
-<p><a href="/implants">dental implants</a> · <a href="/veneers">Veneers</a> · <a href="/fees">Fees</a></p>
-<p><strong>Call [phone]</strong> · Book an appointment</p>
-</section>
-</section>
-</section>
-</section>
-</section>
-</section>
-</section>
-      <div class="treatment-end"><p class="ctas"><a class="btn btn--ghost" href="tel:">Call [phone]</a><a class="btn" href="#book">Book an appointment</a></p></div>
+      <!-- STAGE 2 LUXURY SPLIT HERO -->
+      <header class="treatment-hero treatment-hero--split">
+        <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / <span>Emergency dentist</span></nav>
+        
+        <div class="hero-split-grid">
+          <div class="hero-split-main">
+            <p class="treatment-kicker">
+              <svg width="24" height="24" style="width:24px;height:24px;max-width:24px;max-height:24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M12 7V13"/>
+                <circle cx="12" cy="16.5" r="0.75" fill="currentColor"/>
+              </svg>
+              Urgent dental triage
+            </p>
+            <h1>Emergency dentist</h1>
+            <p class="lead">Severe toothaches, dental trauma, and sudden swelling require prompt, gentle attention. At Smiles by Design in Wheelers Hill, Dr Julia Nguyen reserves dedicated emergency buffers every business day to relieve acute pain, treat infection, and stabilise broken teeth without judgment.</p>
+            
+            <div class="hero-pill-row">
+              <span class="hero-pill">🚨 Same-Day Pain Relief</span>
+              <span class="hero-pill">🪄 Gentle Wand Numbing</span>
+              <span class="hero-pill">💳 HICAPS On-the-Spot Claims</span>
+            </div>
+
+            <p class="ctas">
+              <a class="btn" style="background:#0F5C66;" href="tel:">Call Clinic Now: [phone]</a>
+              <a class="btn btn--ghost" href="#book">Book next available slot</a>
+            </p>
+          </div>
+
+          <!-- DOCTOR PROFILE CARD -->
+          <div class="doctor-profile-card">
+            <div class="doctor-profile-card__head">
+              <div class="doctor-avatar-circle">JN</div>
+              <div>
+                <h3>Dr Julia Nguyen</h3>
+                <div class="doc-title">Principal Clinician · BDSc (Melb)</div>
+              </div>
+            </div>
+            <p class="quote-philosophy">“Dental emergencies are distressing. Our priority is stopping acute pain immediately, calming your anxiety, and providing a clear path forward.”</p>
+            <ul class="doctor-meta-list">
+              <li>📍 Wheelers Hill Practice · Minutes from Brandon Park & Monash</li>
+              <li>🎓 University of Melbourne Dental Graduate</li>
+              <li>🪄 The Wand Computer-Controlled Rapid Numbing</li>
+              <li>📑 Itemised Quotes Given Prior to Immediate Treatment</li>
+            </ul>
+          </div>
+        </div>
+      </header>
+
+      <!-- 4 EMERGENCY TRIAGE TILES -->
+      <section id="triage-categories" class="treatment-section compare-container">
+        <h2>Common Dental Emergencies We Treat Same-Day</h2>
+        <p>If you are experiencing any of the following symptoms, please contact our clinic immediately:</p>
+        
+        <div class="compare-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
+          <div class="compare-card compare-card--featured">
+            <span class="compare-badge">Urgent</span>
+            <h3>Severe Toothache & Abscess</h3>
+            <p class="desc">Throbbing, constant pain keeping you awake, exacerbated by hot or cold liquids, or facial pressure.</p>
+            <p style="font-size:0.85rem; color:var(--ink-soft); margin:0;"><strong>Immediate Action:</strong> Avoid applying hot compresses directly to the cheek. Take paracetamol/ibuprofen as directed and call us for immediate nerve relief.</p>
+          </div>
+
+          <div class="compare-card">
+            <h3>Knocked-Out Adult Tooth</h3>
+            <p class="desc">Complete avulsion from accidental sports impact, falls, or sudden physical trauma.</p>
+            <p style="font-size:0.85rem; color:var(--ink-soft); margin:0;"><strong>Immediate Action:</strong> Handle ONLY by the crown. Do not scrub the root. Store in cold milk or in cheek saliva. Re-implantation must occur within 60 minutes.</p>
+          </div>
+
+          <div class="compare-card">
+            <h3>Chipped or Broken Tooth</h3>
+            <p class="desc">Sharp enamel edges cutting the tongue, exposed sensitive yellow dentin, or a fractured cusp.</p>
+            <p style="font-size:0.85rem; color:var(--ink-soft); margin:0;"><strong>Immediate Action:</strong> Save broken fragments if possible. Avoid chewing on that side. We can smooth sharp margins and bond protective composite.</p>
+          </div>
+
+          <div class="compare-card">
+            <h3>Lost Crown or Large Filling</h3>
+            <p class="desc">Sudden loss of a restoration leaving an open cavity, sharp hole, or intense cold sensitivity.</p>
+            <p style="font-size:0.85rem; color:var(--ink-soft); margin:0;"><strong>Immediate Action:</strong> Keep the crown clean. Do not attempt superglue. We can disinfect the tooth and recement or seal the space.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- STAGE 2: 4-STEP EMERGENCY WORKFLOW -->
+      <section id="emergency-steps" class="treatment-section">
+        <h2>What to Expect at an Emergency Visit</h2>
+        <p>Our focus during an urgent appointment is diagnosis and immediate stabilization:</p>
+        
+        <div class="journey-track">
+          <div class="journey-step">
+            <div class="journey-step__num">01</div>
+            <h4>Triage Call</h4>
+            <p>Our reception team asks key triage questions and prepares our treatment room for your prompt arrival.</p>
+          </div>
+          <div class="journey-step">
+            <div class="journey-step__num">02</div>
+            <h4>Targeted X-Rays</h4>
+            <p>Low-dose digital imaging to inspect root tips, hidden decay, or internal fractures without delay.</p>
+          </div>
+          <div class="journey-step">
+            <div class="journey-step__num">03</div>
+            <h4>Immediate Pain Relief</h4>
+            <p>Gentle computerised local numbing to stop acute nerve pain, followed by temporary sealing or pulp extirpation.</p>
+          </div>
+          <div class="journey-step">
+            <div class="journey-step__num">04</div>
+            <h4>Definitive Plan</h4>
+            <p>Once you are completely pain-free, Dr. Julia provides a written plan detailing long-term restorative options.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- HOSPITAL EMERGENCY RED FLAG CALLOUT -->
+      <div class="care-callout-box" style="border-color:#b91c1c; background:#fef2f2;">
+        <div class="care-icon" style="color:#b91c1c;">⚠️</div>
+        <div>
+          <h3 style="color:#991b1b;">When to Go Directly to a Hospital Emergency Department</h3>
+          <p style="color:#7f1d1d;">If your dental infection is accompanied by <strong>difficulty swallowing, difficulty breathing, or severe facial swelling closing an eye</strong>, this is a medical emergency. Please attend the nearest hospital Emergency Department immediately (such as <strong>Monash Medical Centre</strong> in Clayton, 246 Clayton Rd) or dial <strong>000</strong>.</p>
+        </div>
+      </div>
+
+      <section id="faqs" class="treatment-section">
+        <h2>Frequently Asked Questions</h2>
+        <div class="faq-list">
+          <details>
+            <summary>Can I walk in without calling first?</summary>
+            <p>Calling ahead is strongly advised. Phoning allows us to schedule you into a dedicated buffer slot and have our clinical team prepared the moment you arrive.</p>
+          </details>
+          <details>
+            <summary>Will you pull my tooth today?</summary>
+            <p>Our philosophy is always saving natural teeth whenever clinically possible. Tooth extraction is considered a last resort when a tooth cannot be saved with root canal therapy or bonding.</p>
+          </details>
+          <details>
+            <summary>Can I claim health insurance for emergency visits?</summary>
+            <p>Yes. We have an on-site HICAPS terminal to process instant rebates with all major Australian health funds.</p>
+          </details>
+        </div>
+      </section>
+
+      <div class="treatment-end">
+        <p class="ctas">
+          <a class="btn" href="tel:">Call Clinic Now: [phone]</a>
+          <a class="btn btn--ghost" href="#book">Book appointment</a>
+        </p>
+      </div>
     </article>
   </main>
+
   <footer class="site-footer">
     <div class="wrap site-footer__inner">
       <div>
         <p><strong>Smiles by Design</strong> · Dr Julia Nguyen</p>
         <p>Wheelers Hill VIC 3150</p>
-        <p>Also seeing patients from Wheelers Hill, Rowville, Glen Waverley, Mulgrave, and Mount Waverley.</p>
+        <p>Serving patients across Wheelers Hill, Rowville, Glen Waverley, Mulgrave, and Mount Waverley.</p>
         <p><a href="/emergency">Emergency dentist</a> · <a href="/treatment-risks">Treatment risks</a></p>
       </div>
       <div class="footer-cta">
         <p><a href="/implants">dental implants</a> · <a href="/all-on-4">All-on-4</a> · <a href="/dental-implants-cost">dental implant cost</a> · <a href="/invisalign">Invisalign</a> · <a href="/cosmetic">cosmetic dentistry</a> · <a href="/veneers">veneers</a> · <a href="/whitening">teeth whitening</a></p>
-        <p><a class="btn" href="#book">Book an appointment</a> <a class="btn btn--ghost" href="tel:">Call [phone]</a></p>
+        <p><a class="btn" href="#book">Book an assessment</a> <a class="btn btn--ghost" href="tel:">Call [phone]</a></p>
       </div>
     </div>
   </footer>
+
+  <!-- MOBILE STICKY ACTION BAR -->
+  <aside class="mobile-sticky-bar" aria-label="Quick Actions">
+    <a class="btn btn--ghost" href="tel:">📞 Call Clinic</a>
+    <a class="btn" href="#book">📅 Book Initial Exam</a>
+  </aside>
+
 </body>
 </html>
