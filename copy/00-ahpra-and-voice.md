@@ -2,9 +2,11 @@
 
 ## Voice
 
-Calm, plain, clinician-to-patient. Australian English. Short sentences. Name the treatment, say what happens, say what can go wrong. Warm without spa language. Julia is a person on the site, not a brand overlay.
+Julia’s voice SSOT is `copy/julia-approved-2026-08/voice-guide.md` (approved 9 Aug 2026). Check drafts against that file. Short version: measured, professional, warm without gushing. “Less fluffy” means not saccharine, not terse. Specific and checkable over adjectives. Third person for bio.
 
-We / the practice on service pages. Julia by name on Home and About. Do not invent a house-brand process name.
+We / the practice on service pages. Julia by name on Home and About. Do not invent a house-brand process name. Bio text is `bio-FINAL.md` — do not re-edit without her. Degree is BDSc **UWA 2009**, not Melbourne. Never prosthodontist / specialist / specialising in. Never “experienced implant surgeon.”
+
+Do **not** promise “you always see Julia.” A dentist’s diary does not scale; the claim becomes false the day the practice hires. Principal-led means she owns the plan and the complex work. Other visits can sit with a small team she trusts.
 
 ## Never
 
