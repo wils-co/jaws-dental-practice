@@ -38,7 +38,10 @@ published copy, so divergence is caught before it is overwritten.
    the 2026-09-04 divergence across all 15 files.
 3. **Land work through this repo.** GitHub (`wils-co`) is the only shared bus —
    no Drive, no rclone, no inbox hops.
-4. **Do not merge to `main` without Hermes review** — see `TOOF-LESS.md`.
+4. **Merge to `main` when a direction is settled.** Wilson's call. The Hermes
+   review gate in `TOOF-LESS.md` came from the Grok pod's handover and is
+   stood down while this is a repo of one — reinstate it when other people
+   depend on `main`.
 5. **AHPRA rules are non-negotiable** — `copy/00-ahpra-and-voice.md`.
    No testimonials, no before/after galleries, no "best"/"guaranteed"/
    "pain-free", no unregistered specialist titles.

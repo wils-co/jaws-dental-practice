@@ -1,0 +1,11 @@
+# Verification screenshots and scratch renders — working artefacts, not repo content.
+# Capture them, look at them, let them go. They bloat history permanently.
+*_screenshot.png
+*_screenshot@*.png
+screenshots/
+.scratch/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
