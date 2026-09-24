@@ -1,0 +1,1887 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Smiles by Design — Bunq hero — agy</title>
+  <meta name="robots" content="noindex">
+  
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #090a0c;
+      --fg: #f4f3ef;
+      --fg-muted: rgba(244, 243, 239, 0.65);
+      --fg-dim: rgba(244, 243, 239, 0.35);
+      --accent: #d8c3a5;
+      --accent-glow: rgba(216, 195, 165, 0.15);
+      --border: rgba(244, 243, 239, 0.08);
+      
+      --font-serif: 'Instrument Serif', Georgia, serif;
+      --font-sans: 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      background-color: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+      cursor: default;
+      touch-action: pan-y;
+    }
+
+    /* Film grain — BUNQ's cheap signature. One pseudo-element. */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: -50%;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0.07;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+      animation: grain 0.8s steps(2) infinite;
+    }
+    @keyframes grain {
+      0%, 100% { transform: translate(0); }
+      50% { transform: translate(-1.5%, 1%); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      body::after { animation: none; }
+    }
+
+    /* Fullscreen WebGL Canvas */
+    #gl {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Ambient Vignette Overlay */
+    .vignette {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      background: radial-gradient(
+        circle at 50% 50%,
+        transparent 35%,
+        rgba(9, 10, 12, 0.55) 75%,
+        rgba(9, 10, 12, 0.95) 100%
+      );
+    }
+
+    /* Foreground UI Layer — the 100vh hero. Page content sits after it. */
+    .ui-layer {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: clamp(14px, 3.2vw, 40px);
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .interactive {
+      pointer-events: auto;
+    }
+
+    /* Top Navigation */
+    .nav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      width: 100%;
+      gap: 12px;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(244, 243, 239, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 7px 13px;
+      color: var(--fg-muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all 0.25s ease;
+    }
+
+    .back-link:hover {
+      background: rgba(244, 243, 239, 0.08);
+      color: var(--fg);
+      border-color: rgba(244, 243, 239, 0.2);
+    }
+
+    /* Audio Pill */
+    .audio-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(244, 243, 239, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 7px 13px;
+      color: var(--fg-muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .audio-toggle:hover {
+      background: rgba(244, 243, 239, 0.08);
+      color: var(--fg);
+      border-color: rgba(244, 243, 239, 0.2);
+    }
+
+    .audio-wave {
+      display: flex;
+      align-items: center;
+      gap: 2.5px;
+      height: 12px;
+    }
+
+    .audio-bar {
+      width: 1.5px;
+      height: 3px;
+      background-color: currentColor;
+      border-radius: 1px;
+      transition: height 0.2s ease;
+    }
+
+    .audio-toggle.is-playing .audio-bar:nth-child(1) { animation: wave 0.8s ease-in-out infinite alternate; }
+    .audio-toggle.is-playing .audio-bar:nth-child(2) { animation: wave 1.1s ease-in-out infinite alternate 0.2s; }
+    .audio-toggle.is-playing .audio-bar:nth-child(3) { animation: wave 0.9s ease-in-out infinite alternate 0.4s; }
+    .audio-toggle.is-playing .audio-bar:nth-child(4) { animation: wave 1.2s ease-in-out infinite alternate 0.1s; }
+
+    @keyframes wave {
+      0% { height: 3px; }
+      100% { height: 12px; }
+    }
+
+    .nav-brand {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .brand-title {
+      font-family: var(--font-sans);
+      font-size: 12.5px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--fg);
+      white-space: nowrap;
+    }
+
+    .brand-subtitle {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      letter-spacing: 0.1em;
+      color: var(--fg-dim);
+      text-transform: uppercase;
+      margin-top: 2px;
+      white-space: nowrap;
+    }
+
+    .nav-right {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 16px;
+    }
+    .seat-chip {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--fg);
+      border: 1px solid rgba(244, 243, 239, 0.22);
+      border-radius: 999px;
+      padding: 6px 11px;
+      white-space: nowrap;
+    }
+    .mobile-book { display: none; }
+
+    /* Magnetic CTA Button */
+    .btn-magnetic {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 18px;
+      background: var(--fg);
+      color: var(--bg);
+      border-radius: 999px;
+      font-family: var(--font-sans);
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease;
+    }
+
+    .btn-magnetic:hover {
+      background: #ffffff;
+      transform: scale(1.04);
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.16);
+    }
+
+    /* Center Hero Lockup */
+    .hero {
+      position: relative;
+      max-width: 1040px;
+      width: 100%;
+      margin: 0 auto;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 8px;
+      overflow: hidden;
+    }
+
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: clamp(9.5px, 1vw, 12px);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: clamp(14px, 2.5vh, 26px);
+      opacity: 0.92;
+      max-width: 100%;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .hero-kicker-dot {
+      width: 5px;
+      height: 5px;
+      background-color: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent);
+    }
+
+    /* Real semantic DOM headline — 100% crawlable & accessible */
+    .hero-title {
+      font-family: var(--font-serif);
+      font-size: clamp(40px, 7.5vw, 110px);
+      line-height: 1.04;
+      font-weight: 400;
+      letter-spacing: -0.015em;
+      color: var(--fg);
+      margin-bottom: clamp(14px, 2.5vh, 26px);
+      text-wrap: balance;
+      transition: color 0.3s ease;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: #ffffff;
+      font-family: var(--font-serif);
+      padding-right: 0.06em;
+      text-shadow: 0 0 35px rgba(255, 255, 255, 0.16);
+    }
+
+    /* When WebGL refraction is initialized, hide visual DOM text but keep it fully
+       selectable, copyable, and readable by assistive tech & crawlers */
+    html.js-refraction .hero-title {
+      color: transparent !important;
+      user-select: text;
+    }
+    html.js-refraction .hero-title em {
+      color: transparent !important;
+      text-shadow: none !important;
+    }
+
+    .hero-sub {
+      max-width: min(520px, 100%);
+      font-family: var(--font-sans);
+      font-size: clamp(13px, 1.3vw, 16.5px);
+      font-weight: 300;
+      line-height: 1.55;
+      color: var(--fg-muted);
+      letter-spacing: -0.01em;
+      text-wrap: balance;
+    }
+
+    /* Bottom Status Bar */
+    .foot {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: flex-end;
+      width: 100%;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      letter-spacing: 0.08em;
+      color: var(--fg-dim);
+      text-transform: uppercase;
+      gap: 12px;
+    }
+
+    .foot-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .scroll-indicator {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .scroll-pulse {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--fg-muted);
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.3); }
+    }
+
+    .foot-center {
+      text-align: center;
+      color: var(--fg-muted);
+      font-size: 9.5px;
+      opacity: 0.75;
+      white-space: nowrap;
+    }
+
+    .foot-right {
+      display: flex;
+      justify-content: flex-end;
+      gap: 16px;
+      white-space: nowrap;
+    }
+
+    /* Custom Follower Cursor */
+    .custom-cursor {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 32px;
+      height: 32px;
+      border: 1px solid rgba(244, 243, 239, 0.4);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 100;
+      will-change: transform;
+      transform: translate3d(-100px, -100px, 0) translate(-50%, -50%);
+      transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                  height 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                  border-color 0.3s ease,
+                  background-color 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .custom-cursor-dot {
+      width: 4px;
+      height: 4px;
+      background: var(--fg);
+      border-radius: 50%;
+      transition: opacity 0.2s ease;
+    }
+
+    .custom-cursor.is-hovering {
+      width: 56px;
+      height: 56px;
+      border-color: rgba(255, 255, 255, 0.8);
+      background-color: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(2px);
+    }
+
+    .custom-cursor.is-hovering .custom-cursor-dot {
+      opacity: 0;
+    }
+
+    /* Mobile / Touch Responsive */
+    @media (max-width: 768px) {
+      .nav {
+        grid-template-columns: auto auto;
+        justify-content: space-between;
+      }
+      .nav-brand,
+      .audio-toggle,
+      .nav-right {
+        display: none;
+      }
+      .mobile-book {
+        display: inline-flex;
+      }
+      .foot {
+        grid-template-columns: 1fr;
+        padding-bottom: env(safe-area-inset-bottom, 14px);
+      }
+      .foot-center, .foot-right {
+        display: none;
+      }
+      .custom-cursor {
+        display: none;
+      }
+      .hero-title {
+        font-size: 28px;
+        line-height: 1.1;
+        max-width: 100%;
+      }
+      .hero-kicker {
+        letter-spacing: 0.08em;
+        font-size: 8.5px;
+        gap: 6px;
+      }
+      .hero-sub {
+        font-size: 13px;
+        width: 100%;
+        max-width: 16.5rem;
+        text-wrap: wrap;
+        padding-inline: 4px;
+      }
+      .ui-layer {
+        padding: 14px 16px 18px;
+        overflow-x: hidden;
+      }
+      .btn-magnetic {
+        padding: 8px 12px;
+        font-size: 10px;
+      }
+    }
+
+    /* ── Page below the fold: crawlable HTML, Direction A tokens ────────── */
+    :root {
+      --ink: #2E3630;
+      --ink-soft: #5C635B;
+      --paper: #FFFFFF;
+      --paper-warm: #F7F6F1;
+      --sage: #D9DFD4;
+      --sage-wash: #EDF0E9;
+      --rule: #DFE2DA;
+      --accent-forest: #3C4F42;
+      --gold: #9C6356;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-soft: cubic-bezier(0.33, 1, 0.68, 1);
+      --max: 74rem;
+      --measure: 38rem;
+    }
+
+    .page {
+      position: relative;
+      z-index: 20;
+      background: var(--paper-warm);
+      color: var(--ink);
+      pointer-events: auto;
+      user-select: text;
+    }
+    .page a { color: inherit; }
+    .page .wrap {
+      width: min(var(--max), calc(100% - 2.5rem));
+      margin-inline: auto;
+      padding-block: clamp(3.5rem, 8vw, 6.5rem);
+    }
+    .page .mono {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    .page h2 {
+      font-family: var(--font-serif);
+      font-weight: 400;
+      font-size: clamp(1.85rem, 1.4rem + 1.8vw, 2.75rem);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin: 0.55rem 0 0;
+      text-wrap: balance;
+    }
+    .page p { font-weight: 300; line-height: 1.65; }
+    .page .sec-head { max-width: var(--measure); margin-bottom: clamp(1.75rem, 4vw, 2.75rem); }
+    .page .sec-head p { color: var(--ink-soft); margin-top: 1.1rem; }
+
+    .facts dl {
+      display: grid;
+      gap: 1px;
+      background: var(--rule);
+      grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+      border: 1px solid var(--rule);
+    }
+    .facts div { background: var(--paper); padding: 1.5rem 1.4rem; }
+    .facts dt { color: var(--gold); margin-bottom: 0.45rem; }
+    .facts dd { margin: 0; font-size: 1.05rem; }
+    .facts small { display: block; color: var(--ink-soft); font-size: 0.85rem; margin-top: 0.3rem; }
+
+    .material {
+      background: var(--paper);
+      border-block: 1px solid var(--rule);
+    }
+    .material .split {
+      display: grid;
+      gap: clamp(1.75rem, 4vw, 3.5rem);
+      grid-template-columns: 1fr;
+      align-items: center;
+    }
+    @media (min-width: 62rem) {
+      .material .split { grid-template-columns: 1.15fr 0.85fr; }
+    }
+    .material figure {
+      margin: 0;
+      overflow: hidden;
+      background: var(--sage-wash);
+    }
+    .material img {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+    }
+    .material figcaption {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      padding: 0.85rem 0 0;
+    }
+    .page .pull {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 1.2rem + 1.4vw, 2.15rem);
+      line-height: 1.25;
+      letter-spacing: -0.012em;
+      margin: 0;
+      text-wrap: balance;
+    }
+
+    .treatments { background: var(--paper); border-block: 1px solid var(--rule); }
+    .grid4 {
+      display: grid;
+      gap: 1px;
+      background: var(--rule);
+      grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+      border: 1px solid var(--rule);
+    }
+    .card {
+      background: var(--paper);
+      padding: clamp(1.6rem, 3vw, 2.3rem);
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      transition: background 420ms var(--ease-soft);
+    }
+    .card:hover { background: var(--sage-wash); }
+    .card .mono { color: var(--gold); margin-bottom: 0.85rem; }
+    .card h3 {
+      font-family: var(--font-serif);
+      font-weight: 400;
+      font-size: 1.45rem;
+      margin: 0 0 0.6rem;
+    }
+    .card p { color: var(--ink-soft); font-size: 0.95rem; margin: 0; }
+    .card .more {
+      margin-top: auto;
+      padding-top: 1.5rem;
+      color: var(--accent-forest);
+      font-size: 0.9rem;
+    }
+
+    .approach { background: var(--sage-wash); }
+    .approach .split {
+      display: grid;
+      gap: clamp(2.5rem, 5vw, 4.5rem);
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 62rem) {
+      .approach .split { grid-template-columns: 1fr 1fr; align-items: start; }
+    }
+    .notes { display: grid; gap: 1.75rem; }
+    .note { border-top: 1px solid #C7CCC1; padding-top: 1.25rem; }
+    .note .mono { color: var(--gold); display: block; margin-bottom: 0.55rem; }
+    .note p { color: var(--ink-soft); font-size: 0.95rem; margin: 0; }
+
+    .fees { background: var(--paper-warm); }
+    .fees-box {
+      border: 1px solid var(--rule);
+      background: var(--paper);
+      padding: clamp(1.75rem, 4vw, 3rem);
+      max-width: var(--measure);
+    }
+    .fees-box p { color: var(--ink-soft); }
+
+    .closing {
+      background: var(--bg);
+      color: var(--fg);
+      text-align: center;
+    }
+    .closing h2 { color: var(--fg); }
+    .closing p { color: var(--fg-muted); max-width: 34rem; margin: 1.4rem auto 0; }
+    .closing .hero-cta {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+      pointer-events: auto;
+    }
+    .btn-line {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 18px;
+      border: 1px solid rgba(244,243,239,0.28);
+      border-radius: 999px;
+      color: var(--fg);
+      text-decoration: none;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-family: var(--font-sans);
+      font-weight: 500;
+    }
+
+    .site-foot {
+      background: var(--bg);
+      color: var(--fg-dim);
+      padding: 0 0 3rem;
+      font-size: 0.9rem;
+    }
+    .site-foot .wrap {
+      border-top: 1px solid rgba(242,241,234,0.12);
+      padding-top: 2.5rem;
+      display: grid;
+      gap: 1.5rem;
+    }
+    @media (min-width: 48rem) {
+      .site-foot .wrap { grid-template-columns: 1fr auto; align-items: center; }
+    }
+    .site-foot a { color: var(--fg); text-underline-offset: 3px; }
+    .foot-links { display: flex; flex-wrap: wrap; gap: 1.25rem; }
+
+    html.motion-on [data-reveal] {
+      opacity: 0;
+      transform: translateY(22px);
+    }
+    html.motion-on [data-reveal].seen {
+      opacity: 1;
+      transform: none;
+      transition: opacity 720ms var(--ease-soft), transform 720ms var(--ease-out);
+      transition-delay: var(--d, 0ms);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html.motion-on [data-reveal],
+      html.motion-on [data-reveal].seen { opacity: 1; transform: none; transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- WebGL Canvas Layer -->
+  <canvas id="gl"></canvas>
+
+  <!-- Vignette -->
+  <div class="vignette"></div>
+
+  <!-- Custom Magnetic Cursor -->
+  <div class="custom-cursor" id="cursor">
+    <div class="custom-cursor-dot"></div>
+  </div>
+
+  <!-- UI & Content Layer -->
+  <div class="ui-layer">
+    
+    <!-- Top Nav -->
+    <header class="nav">
+      <div class="nav-left">
+        <a href="dental-shelf.html" class="back-link interactive" aria-label="Return to Dental Shelf">
+          &larr; Dental Shelf
+        </a>
+        <span class="seat-chip">agy</span>
+        <a href="#contact" class="btn-magnetic interactive mobile-book">Book</a>
+        <button class="audio-toggle interactive" id="audioToggle" aria-label="Toggle ambient audio">
+          <span class="audio-wave">
+            <span class="audio-bar"></span>
+            <span class="audio-bar"></span>
+            <span class="audio-bar"></span>
+            <span class="audio-bar"></span>
+          </span>
+          <span id="audioLabel">Sound Off</span>
+        </button>
+      </div>
+
+      <div class="nav-brand">
+        <span class="brand-title">Smiles by Design</span>
+        <span class="brand-subtitle">Dr Julia Nguyen &bull; Wheelers Hill</span>
+      </div>
+
+      <div class="nav-right">
+        <a href="#contact" class="btn-magnetic interactive">
+          Book [01]
+        </a>
+      </div>
+    </header>
+
+    <!-- Center Hero Section -->
+    <main class="hero" id="heroSection">
+      <div class="hero-kicker">
+        <span class="hero-kicker-dot"></span>
+        Melbourne &bull; Cosmetic &amp; Restorative Atelier
+      </div>
+
+      <!-- Real semantic DOM headline (retains selection, accessibility & SEO) -->
+      <h1 class="hero-title" id="heroTitle">
+        Your smile,<br>
+        <em>designed damn well.</em>
+      </h1>
+
+      <p class="hero-sub">
+        Porcelain veneers, implants and restorative work.
+        Dr Julia Nguyen owns the plan and the complex treatment.
+      </p>
+    </main>
+
+    <!-- Bottom Metrics / Bar -->
+    <footer class="foot">
+      <div class="foot-left">
+        <div class="scroll-indicator">
+          <span class="scroll-pulse"></span>
+          <span>Swipe or drag to swirl mist</span>
+        </div>
+      </div>
+
+      <div class="foot-center">
+        <span id="windReadout">Fluid Velocity: 0 px/s</span>
+      </div>
+
+      <div class="foot-right">
+        <span>agy</span>
+        <span>VIC 3150</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Crawlable page. Canvas is decoration; this is the site. -->
+  <div class="page">
+    <section class="facts" id="facts">
+      <div class="wrap">
+        <dl>
+          <div data-reveal>
+            <dt class="mono">Principal-led</dt>
+            <dd>Julia owns the plan<small>She holds the complex work herself</small></dd>
+          </div>
+          <div data-reveal style="--d:90ms">
+            <dt class="mono">Qualification</dt>
+            <dd>BDSc (UWA)<small>University of Western Australia, 2009</small></dd>
+          </div>
+          <div data-reveal style="--d:180ms">
+            <dt class="mono">Location</dt>
+            <dd>Wheelers Hill<small>VIC 3150 — hours to confirm</small></dd>
+          </div>
+          <div data-reveal style="--d:270ms">
+            <dt class="mono">Registration</dt>
+            <dd>AHPRA registered<small>Registration number on the About page</small></dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="material" id="material">
+      <div class="wrap">
+        <div class="split">
+          <figure data-reveal>
+            <img src="media/wafer.jpg" width="1152" height="648"
+                 alt="A single hand-layered porcelain veneer standing on a limestone slab.">
+            <figcaption>Placeholder — AI-generated, not practice photography</figcaption>
+          </figure>
+          <div data-reveal style="--d:120ms">
+            <span class="mono" style="color:var(--gold)">The material</span>
+            <p class="pull">Porcelain, shaped for one face.</p>
+            <p style="color:var(--ink-soft);margin-top:1.1rem;max-width:36rem">
+              Layered and characterised by hand, then checked against your own
+              teeth in daylight. Shade, shape and margin are worked out on the
+              model first. Suitability is something Julia assesses in the chair.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="treatments" id="treatments">
+      <div class="wrap">
+        <div class="sec-head" data-reveal>
+          <span class="mono">What we do</span>
+          <h2>Considered work, explained before it starts.</h2>
+          <p>
+            Every treatment page sets out what is involved, what it costs as a guide,
+            and the risks and recovery. A plan follows an examination — not a webpage.
+          </p>
+        </div>
+        <div class="grid4">
+          <a class="card" href="#" data-reveal>
+            <span class="mono">01</span>
+            <h3>Porcelain veneers</h3>
+            <p>Tooth preparation, shade and shape planning, and what the porcelain can and cannot change. Julia will assess suitability.</p>
+            <span class="more">Read more →</span>
+          </a>
+          <a class="card" href="#" data-reveal style="--d:80ms">
+            <span class="mono">02</span>
+            <h3>Dental implants</h3>
+            <p>Assessment, planning and restoration. Where a case is better placed with a specialist, we say so and refer.</p>
+            <span class="more">Read more →</span>
+          </a>
+          <a class="card" href="#" data-reveal style="--d:160ms">
+            <span class="mono">03</span>
+            <h3>Restorative dentistry</h3>
+            <p>Crowns, bridges and rebuilding worn or broken teeth, with the sequence and timing set out before you commit.</p>
+            <span class="more">Read more →</span>
+          </a>
+          <a class="card" href="#" data-reveal style="--d:240ms">
+            <span class="mono">04</span>
+            <h3>Teeth whitening</h3>
+            <p>In-chair and take-home options, what each does to sensitivity, and how long results tend to hold.</p>
+            <span class="more">Read more →</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="approach" id="approach">
+      <div class="wrap split">
+        <div data-reveal>
+          <span class="mono" style="color:var(--gold);display:block;margin-bottom:1rem">The approach</span>
+          <p class="pull">
+            A dentist can only sit in one chair. So the practice is built around
+            the plan being Julia's, and the day-to-day sitting with a small team
+            she trusts.
+          </p>
+          <figure style="margin:1.75rem 0 0">
+            <img src="media/porcelain.jpg" width="1036" height="777"
+                 alt="Hand-layered porcelain veneer shells beside a stone model and a ceramist's brush."
+                 style="width:100%;height:auto;display:block">
+            <figcaption>Placeholder — AI-generated, not practice photography</figcaption>
+          </figure>
+        </div>
+        <div class="notes">
+          <div class="note" data-reveal style="--d:80ms">
+            <span class="mono">Assessment first</span>
+            <p>Nothing is quoted or promised before an examination. Suitability is something Julia assesses in the chair, not something a website decides.</p>
+          </div>
+          <div class="note" data-reveal style="--d:160ms">
+            <span class="mono">Honest referral</span>
+            <p>Where treatment is better placed elsewhere, we say so on the page for that treatment and refer. In-house and referred work are named as such.</p>
+          </div>
+          <div class="note" data-reveal style="--d:240ms">
+            <span class="mono">Risks stated</span>
+            <p>Every cosmetic and invasive treatment page carries its risks and recovery, and there is a treatment risks page in the footer.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="fees" id="fees">
+      <div class="wrap">
+        <div class="sec-head" data-reveal>
+          <span class="mono">Fees</span>
+          <h2>Published as a guide, not a quote.</h2>
+        </div>
+        <div class="fees-box" data-reveal style="--d:100ms">
+          <p>
+            Indicative ranges are published for each treatment so you can plan. What
+            your own treatment costs depends on what the examination finds — the
+            number of teeth involved, the condition of the bone and gum, and the
+            materials chosen.
+          </p>
+          <p>
+            You will have a written plan with itemised fees before anything begins.
+            Health fund item numbers are included so you can check your cover.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="closing" id="contact">
+      <div class="wrap">
+        <div data-reveal>
+          <span class="mono" style="color:var(--fg-dim);display:block;margin-bottom:1.4rem">Next step</span>
+          <h2>Start with an assessment.</h2>
+          <p>
+            One appointment to look properly, talk through what is realistic, and
+            put a written plan in front of you. No treatment is booked on the day
+            unless you want it to be.
+          </p>
+          <div class="hero-cta">
+            <a class="btn-magnetic interactive" href="#">Book an assessment</a>
+            <a class="btn-line interactive" href="#">Call the practice</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-foot">
+      <div class="wrap">
+        <div>
+          <p style="margin:0">Smiles by Design · Wheelers Hill VIC 3150</p>
+          <p class="mono" style="margin:0.5rem 0 0;opacity:0.6">Dr Julia Nguyen · BDSc (UWA) · AHPRA registered</p>
+        </div>
+        <nav class="foot-links" aria-label="Footer">
+          <a href="#">Treatment risks</a>
+          <a href="#">New patients</a>
+          <a href="#">Privacy</a>
+          <a href="#">Contact</a>
+        </nav>
+      </div>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+  <script>
+  (function () {
+    'use strict';
+    var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.documentElement.classList.add('motion-on');
+    var targets = document.querySelectorAll('[data-reveal]');
+    if (reduced || !('IntersectionObserver' in window)) {
+      targets.forEach(function (el) { el.classList.add('seen'); });
+    } else {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { e.target.classList.add('seen'); io.unobserve(e.target); }
+        });
+      }, { rootMargin: '0px 0px -12% 0px', threshold: 0.12 });
+      targets.forEach(function (el) { io.observe(el); });
+    }
+    if (!reduced && window.Lenis) {
+      var lenis = new window.Lenis({ duration: 1.05, smoothWheel: true });
+      (function raf(t) { lenis.raf(t); requestAnimationFrame(raf); })(0);
+      document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+        a.addEventListener('click', function (ev) {
+          var id = a.getAttribute('href');
+          if (!id || id.length < 2) return;
+          var el = document.querySelector(id);
+          if (!el) return;
+          ev.preventDefault();
+          lenis.scrollTo(el, { offset: 0 });
+        });
+      });
+    }
+  })();
+  </script>
+
+  <!-- Three.js (r169) -->
+  <script type="module">
+    import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/0.169.0/three.module.min.js';
+    window.THREE = THREE;
+
+    /* ==========================================================================
+       CONFIGURABLE UNIFORMS (Exposed globally for live console tuning)
+       ========================================================================== */
+    const FLUID_CONFIG = {
+      pointerForce: 1.25,         // Silky force multiplier on pointer velocity
+      forceRadius: 0.16,          // Broad, smooth bell curve of pointer influence
+      velDissipation: 0.984,      // Fluid momentum coasts smoothly for ~1.5s
+      dyeDissipation: 0.980,      // Luminous mist billows and dissolves gracefully
+      curlStrength: 0.24,         // Organic, divergence-free micro-eddies
+      displacementAmount: 0.032,  // Maximum UV displacement on letterforms (liquid ripple)
+      chromaticAberration: 0.018, // Subtle, luxury optical dispersion fringe
+      dyeIntensity: 0.42          // Soft champagne enamel mist injection (re-graded for sRGB)
+    };
+    window.FLUID_CONFIG = FLUID_CONFIG;
+
+    /* ==========================================================================
+       RENDERER & FULLSCREEN CANVAS
+       ========================================================================== */
+    const canvas = document.getElementById('gl');
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      alpha: true,
+      powerPreference: 'high-performance'
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+    // Main 3D Particle Scene
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 0, 16);
+    scene.add(camera);
+
+    /* ==========================================================================
+       PARTICLE FIELD: 3,000 Falling Ceramic Snow Particles
+       ========================================================================== */
+    const PARTICLE_COUNT = 3000;
+    const pGeometry = new THREE.BufferGeometry();
+
+    const positions = new Float32Array(PARTICLE_COUNT * 3);
+    const velocities = new Float32Array(PARTICLE_COUNT * 3);
+    const seeds = new Float32Array(PARTICLE_COUNT * 4); // [phase, swaySpeed, mass, size]
+
+    const BOX_X = 26;
+    const BOX_Y = 18;
+    const BOX_Z = 12;
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const i3 = i * 3;
+      const i4 = i * 4;
+
+      positions[i3 + 0] = (Math.random() - 0.5) * BOX_X;
+      positions[i3 + 1] = (Math.random() - 0.5) * BOX_Y;
+      positions[i3 + 2] = (Math.random() - 0.5) * BOX_Z;
+
+      velocities[i3 + 0] = (Math.random() - 0.5) * 0.003;
+      velocities[i3 + 1] = -0.002 - Math.random() * 0.004;
+      velocities[i3 + 2] = (Math.random() - 0.5) * 0.003;
+
+      seeds[i4 + 0] = Math.random() * Math.PI * 2;
+      seeds[i4 + 1] = 0.8 + Math.random() * 1.5;
+      seeds[i4 + 2] = 0.4 + Math.random() * 0.8;
+      seeds[i4 + 3] = 1.0 + Math.random() * 2.5;
+    }
+
+    pGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    pGeometry.setAttribute('aSeed', new THREE.BufferAttribute(seeds, 4));
+
+    function createCircleTexture() {
+      const c = document.createElement('canvas');
+      c.width = 64;
+      c.height = 64;
+      const ctx = c.getContext('2d');
+      const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 30);
+      grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+      grad.addColorStop(0.3, 'rgba(244, 240, 230, 0.8)');
+      grad.addColorStop(0.7, 'rgba(216, 195, 165, 0.25)');
+      grad.addColorStop(1, 'rgba(216, 195, 165, 0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 64, 64);
+      return new THREE.CanvasTexture(c);
+    }
+
+    const pMaterial = new THREE.PointsMaterial({
+      size: 0.12,
+      map: createCircleTexture(),
+      transparent: true,
+      opacity: 0.60,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+
+    const particles = new THREE.Points(pGeometry, pMaterial);
+    scene.add(particles);
+
+    /* ==========================================================================
+       GPU FLUID SIMULATION: DIVERGENCE-FREE MIDDLE TIER
+       
+       Mathematical Mechanism:
+       Incompressible Navier-Stokes requires div(u) = 0. Standard solvers (like
+       Pavel Dobryakov's or Bunq Labs') enforce this by computing divergence and
+       running 20-40 Jacobi relaxation iterations to solve the Poisson pressure
+       equation (Helmholtz-Hodge decomposition).
+       
+       Here, we deliberately diverge to an analytical shortcut:
+       For any 2D scalar potential field psi(x, y), its curl is mathematically
+       divergence-free by construction:
+         v = curl(psi) = (d(psi)/dy, -d(psi)/dx)
+         div(v) = d^2(psi)/dxdy - d^2(psi)/dydx == 0
+       
+       By driving fluid circulation through the analytical curl of a Simplex
+       noise field, we guarantee incompressibility without ever running a pressure
+       solve, reducing GPU draw calls from ~25 to 3.
+       
+       WHERE THIS SHORTCUT BREAKS:
+       When the pointer injects an external force F_pointer, that splat has
+       non-zero divergence (div(F) != 0). Because there is no pressure projection
+       to subtract that divergence, under strong, sustained cursor thrashing the
+       fluid will exhibit localized compressibility (clumping/thinning) until
+       dissipation and curl restoration damp the compressible modes.
+       ========================================================================== */
+
+    const SIM_RES = 256;
+    const fboType = THREE.HalfFloatType; // RGBA16F: standard across WebGL 2, zero float filtering issues
+
+    const fboOptions = {
+      type: fboType,
+      minFilter: THREE.LinearFilter,
+      magFilter: THREE.LinearFilter,
+      format: THREE.RGBAFormat,
+      colorSpace: THREE.NoColorSpace,
+      stencilBuffer: false,
+      depthBuffer: false
+    };
+
+    // Ping-pong targets for Velocity (Pass 1) & Dye (Pass 2)
+    let velRead = new THREE.WebGLRenderTarget(SIM_RES, SIM_RES, fboOptions);
+    let velWrite = new THREE.WebGLRenderTarget(SIM_RES, SIM_RES, fboOptions);
+    let dyeRead = new THREE.WebGLRenderTarget(SIM_RES, SIM_RES, fboOptions);
+    let dyeWrite = new THREE.WebGLRenderTarget(SIM_RES, SIM_RES, fboOptions);
+
+    // Dedicated FBO Scene & Camera
+    const fboScene = new THREE.Scene();
+    const fboCam = new THREE.Camera();
+    const fboQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2));
+    fboScene.add(fboQuad);
+
+    // Simplex Noise & Divergence-Free Curl GLSL
+    const curlGLSL = `
+      vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+      vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+      vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
+
+      float snoise(vec2 v) {
+        const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+        vec2 i  = floor(v + dot(v, C.yy) );
+        vec2 x0 = v -   i + dot(i, C.xx);
+        vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+        vec4 x12 = x0.xyxy + C.xxzz;
+        x12.xy -= i1;
+        i = mod289(i);
+        vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 )) + i.x + vec3(0.0, i1.x, 1.0 ));
+        vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+        m = m*m; m = m*m;
+        vec3 x = 2.0 * fract(p * C.www) - 1.0;
+        vec3 h = abs(x) - 0.5;
+        vec3 ox = floor(x + 0.5);
+        vec3 a0 = x - ox;
+        m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+        vec3 g;
+        g.x  = a0.x  * x0.x  + h.x  * x0.y;
+        g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+        return 130.0 * dot(m, g);
+      }
+
+      // Analytical 2D Curl: (d(psi)/dy, -d(psi)/dx)
+      vec2 curlNoise(vec2 p) {
+        const float eps = 0.01;
+        float n1 = snoise(p + vec2(0.0, eps));
+        float n2 = snoise(p - vec2(0.0, eps));
+        float n3 = snoise(p + vec2(eps, 0.0));
+        float n4 = snoise(p - vec2(eps, 0.0));
+        float dx = (n3 - n4) / (2.0 * eps);
+        float dy = (n1 - n2) / (2.0 * eps);
+        return vec2(dy, -dx);
+      }
+    `;
+
+    // Pass 1 Shader: Velocity Splat + Self-Advection + Curl Turbulence + Decay
+    const velocityMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uVelocity: { value: null },
+        uPointerPos: { value: new THREE.Vector2(0.5, 0.5) },
+        uPointerDelta: { value: new THREE.Vector2(0, 0) },
+        uPointerActive: { value: 0.0 },
+        uForce: { value: FLUID_CONFIG.pointerForce },
+        uRadius: { value: FLUID_CONFIG.forceRadius },
+        uDissipation: { value: FLUID_CONFIG.velDissipation },
+        uCurlStrength: { value: FLUID_CONFIG.curlStrength },
+        uTime: { value: 0.0 },
+        uDt: { value: 0.016 },
+        uAspect: { value: window.innerWidth / window.innerHeight }
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = vec4(position.xy, 0.0, 1.0);
+        }
+      `,
+      fragmentShader: `
+        precision highp float;
+        varying vec2 vUv;
+        uniform sampler2D uVelocity;
+        uniform vec2 uPointerPos;
+        uniform vec2 uPointerDelta;
+        uniform float uPointerActive;
+        uniform float uForce;
+        uniform float uRadius;
+        uniform float uDissipation;
+        uniform float uCurlStrength;
+        uniform float uTime;
+        uniform float uDt;
+        uniform float uAspect;
+
+        ${curlGLSL}
+
+        void main() {
+          // 1. Semi-Lagrangian self-advection
+          vec2 vel = texture2D(uVelocity, vUv).xy;
+          vec2 coord = vUv - vel * uDt * 0.45;
+          vec2 advectedVel = texture2D(uVelocity, coord).xy;
+
+          // 2. Exponential dissipation
+          advectedVel *= pow(uDissipation, uDt * 60.0);
+
+          // 3. Analytical divergence-free curl-noise injection
+          // Modulated by local fluid motion so curl only animates active fluid
+          float speed = length(advectedVel);
+          float curlScale = smoothstep(0.001, 0.12, speed);
+          vec2 curl = curlNoise(vUv * 3.2 + uTime * 0.12) * uCurlStrength * curlScale;
+          advectedVel += curl * uDt;
+
+          // 4. Smooth continuous pointer force injection
+          if (uPointerActive > 0.001) {
+            vec2 diff = vUv - uPointerPos;
+            diff.x *= uAspect;
+            float dist = length(diff);
+            if (dist < uRadius) {
+              float factor = smoothstep(uRadius, 0.0, dist);
+              advectedVel += uPointerDelta * uForce * factor * uPointerActive;
+            }
+          }
+
+          gl_FragColor = vec4(advectedVel, 0.0, 1.0);
+        }
+      `
+    });
+
+    // Pass 2 Shader: Dye Advection through Velocity Field + Dissipation
+    const dyeMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uDye: { value: null },
+        uVelocity: { value: null },
+        uPointerPos: { value: new THREE.Vector2(0.5, 0.5) },
+        uPointerActive: { value: 0.0 },
+        uDyeIntensity: { value: FLUID_CONFIG.dyeIntensity },
+        uRadius: { value: FLUID_CONFIG.forceRadius },
+        uDyeDissipation: { value: FLUID_CONFIG.dyeDissipation },
+        uDt: { value: 0.016 },
+        uAspect: { value: window.innerWidth / window.innerHeight }
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = vec4(position.xy, 0.0, 1.0);
+        }
+      `,
+      fragmentShader: `
+        precision highp float;
+        varying vec2 vUv;
+        uniform sampler2D uDye;
+        uniform sampler2D uVelocity;
+        uniform vec2 uPointerPos;
+        uniform float uPointerActive;
+        uniform float uDyeIntensity;
+        uniform float uRadius;
+        uniform float uDyeDissipation;
+        uniform float uDt;
+        uniform float uAspect;
+
+        void main() {
+          // 1. Sample velocity field
+          vec2 vel = texture2D(uVelocity, vUv).xy;
+
+          // 2. Semi-Lagrangian advection (carrying dye along velocity stream)
+          vec2 coord = vUv - vel * uDt * 0.55;
+          vec4 dye = texture2D(uDye, coord);
+
+          // 3. Exponential dye dissipation
+          dye.rgb *= pow(uDyeDissipation, uDt * 60.0);
+
+          // 4. Pointer dye splat (injects luminous mist in the cursor wake)
+          if (uPointerActive > 0.001) {
+            vec2 diff = vUv - uPointerPos;
+            diff.x *= uAspect;
+            float dist = length(diff);
+            if (dist < uRadius) {
+              float factor = smoothstep(uRadius, 0.0, dist);
+              vec3 mistColor = vec3(0.96, 0.93, 0.88); // Champagne enamel mist
+              dye.rgb += mistColor * uDyeIntensity * factor * uPointerActive;
+            }
+          }
+
+          dye.rgb = min(dye.rgb, vec3(1.3));
+          gl_FragColor = vec4(dye.rgb, 1.0);
+        }
+      `
+    });
+
+    /* ==========================================================================
+       PASS 3: SCREEN REFRACTION & CHROMATIC ABERRATION OVER HEADLINE
+       ========================================================================== */
+
+    // Offscreen 2D canvas for pixel-perfect headline rasterization
+    const textCanvas = document.createElement('canvas');
+    const textTexture = new THREE.CanvasTexture(textCanvas);
+    textTexture.minFilter = THREE.LinearFilter;
+    textTexture.magFilter = THREE.LinearFilter;
+
+    const heroTitleEl = document.getElementById('heroTitle');
+    const textUvRect = new THREE.Vector4(0, 0, 1, 1);
+
+    function rasterizeHeadline() {
+      if (!heroTitleEl) return;
+      const rect = heroTitleEl.getBoundingClientRect();
+      const style = window.getComputedStyle(heroTitleEl);
+      const fontSize = parseFloat(style.fontSize) || 64;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      // Generous padding around the headline bounds so descenders ("g", "p", "y")
+      // and downward fluid displacement vectors are never clipped by the canvas or shader UV bounds
+      const padX = Math.round(rect.width * 0.25);
+      const padY = Math.round(rect.height * 0.40);
+      const totalW = rect.width + padX * 2;
+      const totalH = rect.height + padY * 2;
+
+      textCanvas.width = Math.max(1, Math.round(totalW * dpr));
+      textCanvas.height = Math.max(1, Math.round(totalH * dpr));
+
+      const ctx = textCanvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, totalW, totalH);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      const centerX = totalW * 0.5;
+      const y1 = padY + rect.height * 0.26;
+      const y2 = padY + rect.height * 0.74;
+
+      // Line 1: Your smile,
+      ctx.font = `400 ${fontSize}px "Instrument Serif", Georgia, serif`;
+      ctx.fillStyle = '#f4f3ef';
+      ctx.fillText('Your smile,', centerX, y1);
+
+      // Line 2: designed damn well. (crisp italic, no blown-out shadowBlur)
+      ctx.font = `italic 400 ${fontSize}px "Instrument Serif", Georgia, serif`;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('designed damn well.', centerX, y2);
+
+      textTexture.needsUpdate = true;
+
+      // Map padded DOM element screen coordinates to WebGL viewport UV [0, 1]
+      const uvX = (rect.left - padX) / window.innerWidth;
+      const uvY = (window.innerHeight - rect.bottom - padY) / window.innerHeight;
+      const uvW = totalW / window.innerWidth;
+      const uvH = totalH / window.innerHeight;
+      textUvRect.set(uvX, uvY, uvW, uvH);
+
+      // Enable WebGL refraction rendering over DOM text
+      document.documentElement.classList.add('js-refraction');
+    }
+
+    // Ensure headline is rasterized immediately and re-rasterized once web fonts load
+    rasterizeHeadline();
+    if (document.fonts) {
+      if (document.fonts.ready) {
+        document.fonts.ready.then(rasterizeHeadline);
+      }
+      document.fonts.addEventListener('loadingdone', rasterizeHeadline);
+    }
+    window.addEventListener('load', rasterizeHeadline);
+
+    // Screen Composite / Overlay Shader
+    const screenMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uVelocity: { value: null },
+        uDye: { value: null },
+        uTextTexture: { value: textTexture },
+        uTextRect: { value: textUvRect },
+        uDisplacementAmount: { value: FLUID_CONFIG.displacementAmount },
+        uChromaticAberration: { value: FLUID_CONFIG.chromaticAberration },
+        uAspect: { value: window.innerWidth / window.innerHeight }
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = vec4(position.xy, 0.0, 1.0);
+        }
+      `,
+      fragmentShader: `
+        precision highp float;
+        varying vec2 vUv;
+        uniform sampler2D uVelocity;
+        uniform sampler2D uDye;
+        uniform sampler2D uTextTexture;
+        uniform vec4 uTextRect; // [x, y, width, height] in normalized UV
+        uniform float uDisplacementAmount;
+        uniform float uChromaticAberration;
+
+        void main() {
+          vec2 vel = texture2D(uVelocity, vUv).xy;
+          vec3 dye = texture2D(uDye, vUv).rgb;
+
+          // Displacement vector scaled by velocity
+          vec2 disp = vel * uDisplacementAmount;
+
+          // Map screen UV into local padded headline texture UV
+          vec2 textUv = (vUv - uTextRect.xy) / uTextRect.zw;
+
+          vec4 textColor = vec4(0.0);
+
+          // Check if pixel falls inside the padded headline bounding box
+          if (textUv.x >= 0.0 && textUv.x <= 1.0 && textUv.y >= 0.0 && textUv.y <= 1.0) {
+            vec2 uvR = clamp(textUv - disp * (1.0 + uChromaticAberration), 0.0, 1.0);
+            vec2 uvG = clamp(textUv - disp, 0.0, 1.0);
+            vec2 uvB = clamp(textUv - disp * (1.0 - uChromaticAberration), 0.0, 1.0);
+
+            vec4 sampR = texture2D(uTextTexture, uvR);
+            vec4 sampG = texture2D(uTextTexture, uvG);
+            vec4 sampB = texture2D(uTextTexture, uvB);
+
+            float r = sampR.r;
+            float g = sampG.g;
+            float b = sampB.b;
+            float alpha = max(sampR.a, max(sampG.a, sampB.a));
+            textColor = vec4(r, g, b, alpha);
+          }
+
+          // Luminous mist overlay in the cursor wake (re-graded for sRGB)
+          vec3 mist = dye * 0.16;
+
+          // Composite: Refracted text + luminous mist
+          vec3 finalColor = textColor.rgb + mist;
+          float finalAlpha = clamp(textColor.a + length(mist) * 0.7, 0.0, 1.0);
+
+          gl_FragColor = vec4(finalColor, finalAlpha);
+          #include <colorspace_fragment>
+        }
+      `,
+      transparent: true,
+      depthTest: false,
+      depthWrite: false
+    });
+
+    const screenMesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), screenMaterial);
+    const screenScene = new THREE.Scene();
+    screenScene.add(screenMesh);
+
+    /* ==========================================================================
+       POINTER TRACKING & SMOOTH KINEMATICS
+       ========================================================================== */
+    const pointer = {
+      targetX: 0.5,
+      targetY: 0.5,
+      clientX: window.innerWidth * 0.5,
+      clientY: window.innerHeight * 0.5,
+      x: 0.5,
+      y: 0.5,
+      prevX: 0.5,
+      prevY: 0.5,
+      smoothVx: 0.0,
+      smoothVy: 0.0,
+      smoothSpeed: 0.0,
+      activity: 0.0,
+      hasMoved: false
+    };
+
+    let followerX = window.innerWidth * 0.5;
+    let followerY = window.innerHeight * 0.5;
+    let frameCount = 0;
+    let isHeroVisible = true;
+    let rafId = null;
+
+    const windReadout = document.getElementById('windReadout');
+    const cursor = document.getElementById('cursor');
+
+    function onPointerMove(clientX, clientY) {
+      pointer.clientX = clientX;
+      pointer.clientY = clientY;
+      pointer.targetX = clientX / window.innerWidth;
+      pointer.targetY = 1.0 - (clientY / window.innerHeight);
+
+      if (!pointer.hasMoved) {
+        pointer.x = pointer.targetX;
+        pointer.y = pointer.targetY;
+        pointer.prevX = pointer.targetX;
+        pointer.prevY = pointer.targetY;
+        followerX = clientX;
+        followerY = clientY;
+        pointer.hasMoved = true;
+      }
+      pointer.activity = 1.0;
+      ensureRafRunning();
+    }
+
+    // Pointer & Touch Events (Zero DOM mutation in raw event listeners)
+    window.addEventListener('pointermove', (e) => onPointerMove(e.clientX, e.clientY), { passive: true });
+    window.addEventListener('touchstart', (e) => {
+      if (e.touches.length > 0) {
+        const t = e.touches[0];
+        pointer.prevX = t.clientX / window.innerWidth;
+        pointer.prevY = 1.0 - (t.clientY / window.innerHeight);
+        onPointerMove(t.clientX, t.clientY);
+      }
+    }, { passive: true });
+    window.addEventListener('touchmove', (e) => {
+      if (e.touches.length > 0) onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: true });
+
+    // Custom cursor hover expansion
+    document.querySelectorAll('.interactive, a, button').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor && cursor.classList.add('is-hovering'));
+      el.addEventListener('mouseleave', () => cursor && cursor.classList.remove('is-hovering'));
+    });
+
+    // Idle Sleep Triggers: Visibility API & IntersectionObserver
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        stopRaf();
+      } else if (isHeroVisible) {
+        ensureRafRunning();
+      }
+    });
+
+    const heroSectionEl = document.getElementById('heroSection');
+    if (heroSectionEl && window.IntersectionObserver) {
+      const heroObserver = new IntersectionObserver(([entry]) => {
+        isHeroVisible = entry.isIntersecting;
+        if (isHeroVisible) {
+          ensureRafRunning();
+        } else {
+          stopRaf();
+        }
+      }, { threshold: 0.05 });
+      heroObserver.observe(heroSectionEl);
+    }
+
+    function stopRaf() {
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    }
+
+    function ensureRafRunning() {
+      if (!rafId && !document.hidden && isHeroVisible) {
+        lastTime = performance.now();
+        rafId = requestAnimationFrame(animate);
+      }
+    }
+
+    /* ==========================================================================
+       ANIMATION LOOP: 3-PASS CONTINUOUS PIPELINE
+       ========================================================================== */
+    const clock = new THREE.Clock();
+    let lastTime = performance.now();
+
+    function animate() {
+      rafId = requestAnimationFrame(animate);
+      frameCount++;
+
+      const now = performance.now();
+      const dt = Math.min(0.033, Math.max(0.008, (now - lastTime) / 1000));
+      lastTime = now;
+      const elapsed = clock.getElapsedTime();
+
+      // ------------------------------------------------------------------------
+      // 1. POINTER KINEMATICS & SMOOTH CURSOR FOLLOWER
+      // ------------------------------------------------------------------------
+      // Exponential smoothing (lerp) toward target pointer position
+      const lerpAlpha = 0.38;
+      pointer.x += (pointer.targetX - pointer.x) * lerpAlpha;
+      pointer.y += (pointer.targetY - pointer.y) * lerpAlpha;
+
+      const rawVx = (pointer.x - pointer.prevX) / dt;
+      const rawVy = (pointer.y - pointer.prevY) / dt;
+      pointer.prevX = pointer.x;
+      pointer.prevY = pointer.y;
+
+      // Low-pass filter velocity for continuous, buttery-smooth impulse vectors
+      pointer.smoothVx = pointer.smoothVx * 0.72 + rawVx * 0.28;
+      pointer.smoothVy = pointer.smoothVy * 0.72 + rawVy * 0.28;
+
+      const currentSpeed = Math.hypot(pointer.smoothVx, pointer.smoothVy);
+      pointer.smoothSpeed = pointer.smoothSpeed * 0.85 + currentSpeed * 0.15;
+
+      // Activity decay
+      pointer.activity *= 0.94;
+      const effectiveActivity = Math.min(1.0, pointer.smoothSpeed * 2.5 + pointer.activity * 0.5);
+
+      // Hardware-accelerated smooth cursor follower
+      if (cursor) {
+        followerX += (pointer.clientX - followerX) * 0.22;
+        followerY += (pointer.clientY - followerY) * 0.22;
+        cursor.style.transform = `translate3d(${followerX}px, ${followerY}px, 0) translate(-50%, -50%)`;
+      }
+
+      // Throttled HUD readout (once every 12 frames ~ 5Hz, no layout thrash)
+      if (windReadout && frameCount % 12 === 0) {
+        const pxSpeed = Math.round(pointer.smoothSpeed * window.innerWidth * 0.45);
+        windReadout.textContent = `Fluid Velocity: ${pxSpeed} px/s`;
+      }
+
+      // ------------------------------------------------------------------------
+      // PASS 1: VELOCITY SIMULATION
+      // ------------------------------------------------------------------------
+      const velUniforms = velocityMaterial.uniforms;
+      velUniforms.uVelocity.value = velRead.texture;
+      velUniforms.uPointerPos.value.set(pointer.x, pointer.y);
+      velUniforms.uPointerDelta.value.set(
+        THREE.MathUtils.clamp(pointer.smoothVx * 0.08, -1.5, 1.5),
+        THREE.MathUtils.clamp(pointer.smoothVy * 0.08, -1.5, 1.5)
+      );
+      velUniforms.uPointerActive.value = effectiveActivity;
+      velUniforms.uForce.value = window.FLUID_CONFIG.pointerForce;
+      velUniforms.uRadius.value = window.FLUID_CONFIG.forceRadius;
+      velUniforms.uDissipation.value = window.FLUID_CONFIG.velDissipation;
+      velUniforms.uCurlStrength.value = window.FLUID_CONFIG.curlStrength;
+      velUniforms.uTime.value = elapsed;
+      velUniforms.uDt.value = dt;
+      velUniforms.uAspect.value = window.innerWidth / window.innerHeight;
+
+      fboQuad.material = velocityMaterial;
+      renderer.setRenderTarget(velWrite);
+      renderer.render(fboScene, fboCam);
+
+      let temp = velRead;
+      velRead = velWrite;
+      velWrite = temp;
+
+      // ------------------------------------------------------------------------
+      // PASS 2: DYE ADVECTION & DISSIPATION
+      // ------------------------------------------------------------------------
+      const dyeUniforms = dyeMaterial.uniforms;
+      dyeUniforms.uDye.value = dyeRead.texture;
+      dyeUniforms.uVelocity.value = velRead.texture;
+      dyeUniforms.uPointerPos.value.set(pointer.x, pointer.y);
+      dyeUniforms.uPointerActive.value = effectiveActivity;
+      dyeUniforms.uDyeIntensity.value = window.FLUID_CONFIG.dyeIntensity;
+      dyeUniforms.uRadius.value = window.FLUID_CONFIG.forceRadius;
+      dyeUniforms.uDyeDissipation.value = window.FLUID_CONFIG.dyeDissipation;
+      dyeUniforms.uDt.value = dt;
+      dyeUniforms.uAspect.value = window.innerWidth / window.innerHeight;
+
+      fboQuad.material = dyeMaterial;
+      renderer.setRenderTarget(dyeWrite);
+      renderer.render(fboScene, fboCam);
+
+      temp = dyeRead;
+      dyeRead = dyeWrite;
+      dyeWrite = temp;
+
+      renderer.setRenderTarget(null);
+
+      // ------------------------------------------------------------------------
+      // UPDATE 3D PARTICLES — Natural wind coupling from cursor movements
+      // ------------------------------------------------------------------------
+      const posArr = pGeometry.attributes.position.array;
+      const seedArr = pGeometry.attributes.aSeed.array;
+
+      // Frustum visible dimensions at z = 0
+      const vFOV = THREE.MathUtils.degToRad(camera.fov);
+      const visibleH = 2 * Math.tan(vFOV * 0.5) * camera.position.z;
+      const visibleW = visibleH * (window.innerWidth / window.innerHeight);
+
+      const curWorldX = (pointer.x - 0.5) * visibleW;
+      const curWorldY = (pointer.y - 0.5) * visibleH;
+      const windForceX = pointer.smoothVx * visibleW * 0.32;
+      const windForceY = pointer.smoothVy * visibleH * 0.32;
+      const windSpeed = Math.hypot(windForceX, windForceY);
+      const windRadius = Math.min(4.8, 2.6 + windSpeed * 0.5);
+      const windRadiusSq = windRadius * windRadius;
+
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        const i3 = i * 3;
+        const i4 = i * 4;
+
+        let px = posArr[i3 + 0];
+        let py = posArr[i3 + 1];
+        let pz = posArr[i3 + 2];
+
+        let vx = velocities[i3 + 0];
+        let vy = velocities[i3 + 1];
+        let vz = velocities[i3 + 2];
+
+        const phase = seedArr[i4 + 0];
+        const freq = seedArr[i4 + 1];
+        const mass = seedArr[i4 + 2];
+
+        // 1. Natural wind coupling when pointer sweeps near particles
+        if (windSpeed > 0.02) {
+          const dx = px - curWorldX;
+          const dy = py - curWorldY;
+          const dSq = dx * dx + dy * dy;
+          if (dSq < windRadiusSq) {
+            const d = Math.sqrt(dSq);
+            const falloff = 1.0 - (d / windRadius);
+            const impulse = falloff * falloff;
+            vx += windForceX * impulse * (0.6 + mass * 0.4);
+            vy += windForceY * impulse * (0.6 + mass * 0.4);
+            vz += (Math.random() - 0.5) * windSpeed * impulse * 0.3;
+          }
+        }
+
+        // 2. Atmospheric sway & gentle gravity
+        const sway = Math.sin(elapsed * freq + phase) * 0.0007;
+        vx += sway;
+        vy -= (0.0010 * mass);
+
+        // 3. Fluid drag / viscous damping
+        vx *= 0.955;
+        vy *= 0.970;
+        vz *= 0.955;
+
+        px += vx;
+        py += vy;
+        pz += vz;
+
+        // Boundary wrap
+        if (py < -BOX_Y * 0.5) {
+          py = BOX_Y * 0.5;
+          px = (Math.random() - 0.5) * BOX_X;
+          pz = (Math.random() - 0.5) * BOX_Z;
+          vx = (Math.random() - 0.5) * 0.002;
+          vy = -0.002 - Math.random() * 0.003;
+        }
+        if (px < -BOX_X * 0.5) px = BOX_X * 0.5;
+        if (px > BOX_X * 0.5) px = -BOX_X * 0.5;
+
+        posArr[i3 + 0] = px;
+        posArr[i3 + 1] = py;
+        posArr[i3 + 2] = pz;
+
+        velocities[i3 + 0] = vx;
+        velocities[i3 + 1] = vy;
+        velocities[i3 + 2] = vz;
+      }
+      pGeometry.attributes.position.needsUpdate = true;
+
+      // Render 3D particle field to screen
+      renderer.render(scene, camera);
+
+      // ------------------------------------------------------------------------
+      // PASS 3: SCREEN REFRACTION & CHROMATIC ABERRATION OVER HEADLINE
+      // ------------------------------------------------------------------------
+      const screenUniforms = screenMaterial.uniforms;
+      screenUniforms.uVelocity.value = velRead.texture;
+      screenUniforms.uDye.value = dyeRead.texture;
+      screenUniforms.uDisplacementAmount.value = window.FLUID_CONFIG.displacementAmount;
+      screenUniforms.uChromaticAberration.value = window.FLUID_CONFIG.chromaticAberration;
+      screenUniforms.uAspect.value = window.innerWidth / window.innerHeight;
+
+      renderer.autoClear = false;
+      renderer.render(screenScene, fboCam);
+      renderer.autoClear = true;
+    }
+
+    // Start RAF loop
+    ensureRafRunning();
+
+    // Window Resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      rasterizeHeadline();
+    });
+
+    /* ==========================================================================
+       SYNTHESIZED AMBIENT SOUND (Web Audio API)
+       ========================================================================== */
+    let audioCtx = null;
+    let isPlaying = false;
+    let masterGain = null;
+    let oscList = [];
+
+    const audioToggle = document.getElementById('audioToggle');
+    const audioLabel = document.getElementById('audioLabel');
+
+    function initAudio() {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = audioCtx.createGain();
+      masterGain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+      masterGain.connect(audioCtx.destination);
+
+      const freqs = [146.83, 174.61, 220.00, 261.63, 329.63];
+
+      freqs.forEach((f, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        const filter = audioCtx.createBiquadFilter();
+
+        osc.type = idx % 2 === 0 ? 'sine' : 'triangle';
+        osc.frequency.setValueAtTime(f, audioCtx.currentTime);
+
+        const lfo = audioCtx.createOscillator();
+        const lfoGain = audioCtx.createGain();
+        lfo.frequency.setValueAtTime(0.1 + idx * 0.05, audioCtx.currentTime);
+        lfoGain.gain.setValueAtTime(0.8, audioCtx.currentTime);
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc.frequency);
+        lfo.start();
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(420 + idx * 120, audioCtx.currentTime);
+
+        gain.gain.setValueAtTime(0.08 / freqs.length, audioCtx.currentTime);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(masterGain);
+
+        osc.start();
+        oscList.push(osc);
+      });
+    }
+
+    audioToggle.addEventListener('click', () => {
+      if (!audioCtx) initAudio();
+      
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      if (!isPlaying) {
+        masterGain.gain.exponentialRampToValueAtTime(0.35, audioCtx.currentTime + 1.8);
+        isPlaying = true;
+        audioToggle.classList.add('is-playing');
+        audioLabel.textContent = 'Sound On';
+      } else {
+        masterGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
+        isPlaying = false;
+        audioToggle.classList.remove('is-playing');
+        audioLabel.textContent = 'Sound Off';
+      }
+    });
+
+  </script>
+</body>
+</html>

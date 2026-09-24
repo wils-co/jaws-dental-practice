@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smiles by Design — Direction B, modern / motion</title>
+<meta name="description" content="Design exploration. Boutique cosmetic and restorative dentistry in Wheelers Hill. Principal-led by Dr Julia Nguyen.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   Smiles by Design — DIRECTION B
+   Modern / fun / motion-forward. A one-page design exploration, not the live
+   site. Deliberate contrast with Direction A (sage, forest, terracotta,
+   Cormorant + Jost, 2px corners, 20px/620ms reveals).
+
+   Palette POV: warm newsprint + vermillion + electric cobalt + acid lime.
+   Type as a graphic. Organic masks. Native CSS scroll-driven motion with an
+   IntersectionObserver fallback. No motion library — @motion.page/sdk is
+   ~205KB for work ~80 lines of CSS already cover.
+
+   Motion contract (non-negotiable):
+   - Base stylesheet never hides content.
+   - Hidden-initial-state is scoped to html.motion-on, which JS applies.
+   - Blocked or failed script → fully readable static page.
+   - prefers-reduced-motion disables the lot, including the marquee.
+   - Emergency strip never moves.
+
+   AHPRA: no testimonials, no before/after, no best/guaranteed/pain-free,
+   no specialist titles, no procedure-volume counters. Placeholders stay
+   [tokens]. Principal-led ≠ “you always see Julia.”
+   ========================================================================== */
+
+:root{
+  --paper:#F3EBE0;
+  --foam:#FFF8F1;
+  --ink:#101114;
+  --ink-2:#2C2E34;
+  --muted:#6A6460;
+  --line:#E1D4C6;
+  --punch:#FF3B1A;
+  --cobalt:#2A4BFF;
+  --lemon:#D8FF3C;
+  --display:"Syne",system-ui,sans-serif;
+  --body:"Outfit",system-ui,-apple-system,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --header-h:4.4rem;
+  --max:1180px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--body);
+  font-weight:300;
+  font-size:1.0625rem;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+img{display:block;max-width:100%;height:auto}
+a{color:inherit}
+.wrap{width:min(100% - 2.4rem,var(--max));margin-inline:auto}
+.skip{
+  position:absolute;left:-999px;top:0;background:var(--ink);color:var(--foam);
+  padding:.6rem 1rem;z-index:200;
+}
+.skip:focus{left:1rem;top:1rem}
+
+h1,h2,h3,.vmark,.wordmark{
+  font-family:var(--display);
+  font-weight:800;
+  letter-spacing:-.045em;
+  line-height:.92;
+  margin:0;
+}
+h1{font-size:clamp(2.35rem,8.4vw,5.8rem);text-transform:uppercase}
+h2{font-size:clamp(2.1rem,6vw,4.8rem);text-transform:uppercase}
+h3{font-size:clamp(1.25rem,2vw,1.85rem);letter-spacing:-.03em}
+.eyebrow{
+  font-family:var(--mono);
+  font-size:.72rem;
+  font-weight:500;
+  letter-spacing:.28em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin:0 0 1.25rem;
+}
+.lede{
+  font-size:clamp(1.05rem,1.5vw,1.32rem);
+  max-width:min(44ch,100%);
+  color:var(--ink-2);
+  margin:1.2rem 0 0;
+}
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:.65rem;
+  background:var(--ink);color:var(--foam);text-decoration:none;
+  font-family:var(--body);font-weight:500;font-size:.92rem;
+  padding:1.05rem 1.7rem;border-radius:999px;border:2px solid var(--ink);
+  position:relative;overflow:hidden;isolation:isolate;
+  transition:transform .35s var(--ease),color .35s var(--ease),border-color .35s var(--ease),background .35s var(--ease);
+}
+.btn::before{
+  content:"";position:absolute;inset:0;background:var(--punch);z-index:-1;
+  transform:translateX(-101%);transition:transform .45s var(--ease);
+}
+.btn:hover{transform:translateY(-3px);border-color:var(--punch);color:#fff}
+.btn:hover::before{transform:none}
+.btn .dot{width:.55rem;height:.55rem;border-radius:50%;background:var(--lemon);flex:0 0 auto}
+.btn--ghost{background:transparent;color:var(--ink)}
+.btn--ghost::before{background:var(--ink)}
+.btn--ghost:hover{color:var(--foam);border-color:var(--ink)}
+.btn--lemon{background:var(--lemon);color:var(--ink);border-color:var(--lemon)}
+.btn--lemon::before{background:var(--foam)}
+.btn--lemon:hover{color:var(--ink);border-color:var(--foam)}
+.btn--on-dark{border-color:var(--foam);color:var(--foam)}
+.btn--on-dark::before{background:var(--lemon)}
+.btn--on-dark:hover{color:var(--ink);border-color:var(--lemon)}
+.ctas{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1.8rem}
+
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible{
+  outline:2px solid var(--cobalt);
+  outline-offset:3px;
+}
+
+/* ---------- emergency: never animated ---------- */
+.emergency{
+  background:var(--ink);color:var(--foam);
+  font-size:.82rem;letter-spacing:.02em;padding:.55rem 0;
+  position:relative;z-index:70;
+}
+.emergency .wrap{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;align-items:center}
+.emergency a{color:var(--lemon);font-weight:500;text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--lemon) 50%,transparent)}
+
+/* ---------- header ---------- */
+header.site{
+  position:sticky;top:0;z-index:60;
+  background:color-mix(in srgb,var(--paper) 82%,transparent);
+  backdrop-filter:blur(16px) saturate(1.3);
+  border-bottom:1px solid transparent;
+  transition:border-color .3s,box-shadow .3s;
+}
+header.site.is-stuck{
+  border-bottom-color:var(--line);
+  box-shadow:0 10px 30px color-mix(in srgb,var(--ink) 6%,transparent);
+}
+header.site .wrap{
+  display:flex;align-items:center;gap:1.4rem;min-height:var(--header-h);
+}
+.wordmark{
+  font-size:1.12rem;text-decoration:none;text-transform:uppercase;
+  letter-spacing:-.04em;flex:1;min-width:0;
+}
+.wordmark span{color:var(--punch)}
+nav.desk{display:none;gap:1.5rem;font-size:.92rem}
+nav.desk a{text-decoration:none;position:relative;padding:.2rem 0}
+nav.desk a::after{
+  content:"";position:absolute;left:50%;bottom:-2px;width:100%;height:2px;
+  background:var(--punch);transform:translateX(-50%) scaleX(0);
+  transition:transform .35s var(--ease);
+}
+nav.desk a:hover::after{transform:translateX(-50%) scaleX(1)}
+@media(min-width:960px){nav.desk{display:flex}}
+@media(max-width:959px){
+  header.site .wrap{position:relative;padding-right:3.4rem}
+  header.site .wrap > .btn{display:none}
+  .nav-menu{position:absolute;right:0;top:50%;transform:translateY(-50%);margin:0}
+  .nav-menu summary{
+    width:auto;height:2.7rem;padding:0 .85rem;justify-content:center;
+    background:var(--foam);font-size:.82rem;letter-spacing:.04em;
+  }
+}
+.nav-menu{margin-left:auto}
+.nav-menu summary{
+  list-style:none;cursor:pointer;font-weight:500;
+  display:inline-flex;align-items:center;
+  border:2px solid var(--ink);border-radius:999px;padding:.45rem 1rem;
+}
+.nav-menu summary::-webkit-details-marker{display:none}
+.nav-menu__panel{
+  position:absolute;right:1.2rem;top:calc(var(--header-h) + .4rem);
+  background:var(--foam);border:2px solid var(--ink);border-radius:1.4rem;
+  padding:1rem 1.2rem;display:flex;flex-direction:column;gap:.7rem;
+  min-width:14rem;box-shadow:8px 12px 0 var(--ink);
+}
+.nav-menu__panel a{text-decoration:none;font-weight:500}
+@media(min-width:960px){.nav-menu{display:none}}
+
+/* ---------- hero (3 independently-moving planes) ---------- */
+.hero{
+  position:relative;
+  min-height:calc(100svh - 7rem);
+  padding:clamp(1.6rem,4vw,3.4rem) 0 6.5rem;
+  overflow:hidden;
+}
+.vmark{
+  position:absolute;left:clamp(.4rem,2vw,1.4rem);top:50%;
+  writing-mode:vertical-rl;transform:translateY(-50%) rotate(180deg);
+  font-size:.72rem;letter-spacing:.42em;text-transform:uppercase;
+  color:var(--ink);z-index:4;pointer-events:none;
+}
+@media(max-width:720px){.vmark{display:none}}
+
+.plane{position:absolute;inset:0;pointer-events:none;will-change:transform}
+.plane-a{
+  display:flex;align-items:flex-end;justify-content:flex-start;
+  font-family:var(--display);font-weight:800;font-size:clamp(6rem,28vw,22rem);
+  line-height:.75;letter-spacing:-.07em;text-transform:uppercase;
+  color:transparent;-webkit-text-stroke:2px color-mix(in srgb,var(--ink) 16%,transparent);
+  padding-left:4vw;z-index:0;user-select:none;
+}
+.plane-b{z-index:1}
+.plane-c{position:relative;z-index:3;pointer-events:auto;padding-left:clamp(0px,4vw,2.5rem)}
+.hero-copy{max-width:min(42rem,64%)}
+.hero h1{font-size:clamp(2.35rem,6.8vw,4.85rem)}
+.hero-mobile-shot{display:none}
+
+.blob{
+  position:absolute;background-size:cover;background-position:center;
+  box-shadow:0 24px 60px color-mix(in srgb,var(--ink) 16%,transparent);
+}
+.blob-photo{
+  width:min(36vw,400px);aspect-ratio:3/4;
+  right:5vw;top:10%;
+  border-radius:62% 38% 70% 30% / 44% 56% 44% 56%;
+  background-image:url("media/studio.jpg");
+  background-color:#c9b9a6;
+}
+.blob-lemon{
+  width:min(18vw,180px);aspect-ratio:1;right:4vw;bottom:18%;
+  background:var(--lemon);
+  border-radius:58% 42% 64% 36% / 42% 64% 36% 58%;
+}
+.blob-cobalt{
+  width:min(14vw,140px);aspect-ratio:1;right:34vw;top:12%;
+  background:var(--cobalt);
+  border-radius:40% 60% 38% 62% / 60% 38% 62% 40%;
+}
+.blob-arc{
+  width:min(16vw,160px);aspect-ratio:1;right:28vw;bottom:14%;
+  border-radius:50% 50% 42% 58% / 46% 54% 46% 54%;
+  background-image:url("media/porcelain.jpg");
+  background-color:#2a2a2a;
+  border:3px solid var(--ink);
+}
+@media(max-width:900px){
+  .plane-b{display:none}
+  .plane-c{padding-left:0}
+  .hero{min-height:0;padding-bottom:5.5rem}
+  .hero-copy{max-width:none}
+  .hero h1{font-size:clamp(1.7rem,6.2vw,3.4rem);letter-spacing:-.06em}
+  .hero-mobile-shot{
+    display:block;width:min(72vw,280px);aspect-ratio:3/4;margin:1.8rem 0 0 auto;
+    border-radius:62% 38% 70% 30% / 44% 56% 44% 56%;
+    background:url("media/studio.jpg") center/cover #c9b9a6;
+    box-shadow:0 18px 40px color-mix(in srgb,var(--ink) 16%,transparent);
+  }
+  .manifest-shot{margin-top:1.6rem;width:min(70vw,260px)}
+  .scroll-cue{width:5.6rem;height:5.6rem}
+}
+@media(max-width:520px){
+  .ctas{flex-direction:column;align-items:stretch}
+  .ctas .btn{justify-content:center}
+}
+
+.hero h1 .line{display:block}
+.hero h1 .sub{
+  display:block;margin-top:.35em;
+  font-size:clamp(1.15rem,3.2vw,2.35rem);
+  text-transform:none;font-weight:700;letter-spacing:-.03em;
+  max-width:18ch;line-height:1.12;
+}
+.hero h1 em{font-style:italic;color:var(--punch);font-weight:800}
+
+.chip{
+  display:inline-flex;align-items:center;gap:.55rem;
+  background:var(--foam);border:2px solid var(--ink);
+  border-radius:999px;padding:.45rem .9rem .45rem .45rem;
+  font-size:.78rem;font-weight:500;margin-top:1.6rem;
+}
+.chip b{display:grid;place-items:center;width:1.8rem;height:1.8rem;border-radius:50%;
+  background:var(--punch);color:#fff;font-family:var(--display);font-size:.72rem}
+
+/* oversized scroll cue — Alley move */
+.scroll-cue{
+  position:absolute;right:clamp(1rem,4vw,3rem);bottom:1.1rem;z-index:5;
+  width:8.2rem;height:8.2rem;border-radius:50%;
+  background:var(--ink);color:var(--lemon);text-decoration:none;
+  display:grid;place-items:center;
+}
+.scroll-cue svg{position:absolute;inset:0;width:100%;height:100%;animation:spin 14s linear infinite}
+.scroll-cue text{fill:var(--lemon);font-family:var(--mono);font-size:11px;letter-spacing:.28em}
+.scroll-cue__arrow{
+  font-size:1.6rem;line-height:1;animation:bob 1.6s var(--ease) infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes bob{50%{transform:translateY(6px)}}
+
+/* ---------- marquee ---------- */
+.marquee{
+  background:var(--punch);color:#fff;
+  border-block:3px solid var(--ink);
+  overflow:hidden;padding:1rem 0;
+}
+.marquee-track{display:flex;width:max-content;gap:0;animation:marquee 32s linear infinite}
+.marquee span{
+  font-family:var(--display);font-weight:800;text-transform:uppercase;
+  font-size:clamp(1.2rem,2.4vw,1.85rem);letter-spacing:-.03em;
+  white-space:nowrap;padding:0 1.6rem;
+  display:inline-flex;align-items:center;gap:1.6rem;
+}
+.marquee span::after{
+  content:"";width:.65rem;height:.65rem;border-radius:50%;background:var(--lemon);
+}
+@keyframes marquee{to{transform:translateX(-50%)}}
+.marquee:hover .marquee-track{animation-play-state:paused}
+
+/* ---------- sections ---------- */
+section{padding:clamp(3.6rem,8vw,7.2rem) 0;position:relative}
+.sec-head{max-width:54rem;margin-bottom:2.6rem}
+.sec-head .lede{margin-top:1.1rem}
+
+/* curved dividers */
+.wave{
+  display:block;width:100%;height:clamp(48px,8vw,96px);
+  color:var(--paper);
+}
+.wave--ink{color:var(--ink)}
+.wave--cobalt{color:var(--cobalt)}
+.wave--punch{color:var(--punch)}
+
+/* manifesto color block */
+.manifest{
+  background:var(--cobalt);color:var(--foam);
+  padding:0;overflow:hidden;
+}
+.manifest .inner{padding:clamp(3.5rem,8vw,7rem) 0 4rem}
+.manifest .eyebrow{color:color-mix(in srgb,var(--foam) 70%,var(--cobalt))}
+.manifest h2{max-width:14ch}
+.manifest h2 em{font-style:italic;color:var(--lemon);text-transform:none;font-size:.78em}
+.mega{
+  display:flex;flex-wrap:wrap;gap:.28em .5em;
+  font-family:var(--display);font-weight:800;text-transform:uppercase;
+  font-size:clamp(2.4rem,8vw,6.4rem);letter-spacing:-.05em;line-height:.92;
+  margin:0 0 1.4rem;
+}
+.mega span{display:inline-block}
+.manifest .lede{color:color-mix(in srgb,var(--foam) 88%,var(--cobalt));max-width:48ch}
+.manifest-shot{
+  width:min(46vw,380px);aspect-ratio:3/4;margin-left:auto;margin-top:-4rem;
+  border-radius:48% 52% 38% 62% / 42% 58% 42% 58%;
+  background:url("media/corridor.jpg") center/cover #cbb;
+  border:3px solid var(--ink);
+  box-shadow:16px 20px 0 var(--lemon);
+}
+@media(min-width:900px){
+  .manifest-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:3rem;align-items:end}
+}
+@media(max-width:899px){
+  .manifest-shot{margin-top:1.4rem;width:min(72vw,260px)}
+  .manifest .lede{max-width:none;padding-right:0}
+  .wordmark{font-size:.82rem}
+  .nav-menu{flex-shrink:0}
+  .mega{font-size:1.85rem}
+  .plane-a{font-size:5.2rem}
+}
+
+/* why strip */
+.why{display:grid;gap:1rem}
+@media(min-width:800px){.why{grid-template-columns:repeat(3,1fr)}}
+.why a{
+  text-decoration:none;background:var(--foam);border:2px solid var(--ink);
+  border-radius:1.8rem;padding:1.6rem 1.4rem 1.4rem;min-height:14rem;
+  display:flex;flex-direction:column;gap:.5rem;
+  transition:transform .4s var(--ease),background .4s var(--ease),color .4s var(--ease);
+  position:relative;overflow:hidden;
+}
+.why a::after{
+  content:"";position:absolute;width:9rem;height:9rem;border-radius:50%;
+  background:var(--lemon);right:-2.5rem;bottom:-3rem;opacity:0;
+  transition:opacity .4s,transform .5s var(--ease);transform:scale(.4);
+}
+.why a:hover{transform:translateY(-6px) rotate(-.4deg);background:var(--ink);color:var(--foam)}
+.why a:hover::after{opacity:.9;transform:scale(1)}
+.why .n{
+  font-family:var(--display);font-weight:800;font-size:2.6rem;color:var(--punch);
+  line-height:1;position:relative;z-index:1;
+}
+.why h3,.why p{position:relative;z-index:1}
+.why p{margin:0;color:var(--muted);flex:1;font-size:.95rem}
+.why a:hover p{color:color-mix(in srgb,var(--foam) 75%,transparent)}
+.why a:hover .n{color:var(--lemon)}
+
+/* treatments */
+.tx{
+  display:grid;gap:1.1rem;
+  grid-template-columns:1fr;
+}
+@media(min-width:720px){.tx{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1100px){.tx{grid-template-columns:repeat(12,1fr)}}
+.tx-card{
+  text-decoration:none;background:var(--foam);border:2px solid var(--ink);
+  border-radius:1.8rem;padding:1.2rem;display:flex;flex-direction:column;gap:.7rem;
+  min-height:16rem;position:relative;overflow:hidden;
+  transition:transform .4s var(--ease),box-shadow .4s var(--ease);
+}
+.tx-card:hover{transform:translateY(-7px);box-shadow:10px 12px 0 var(--ink)}
+.tx-card.span6{grid-column:span 1}
+@media(min-width:1100px){
+  .tx-card.span6{grid-column:span 6}
+  .tx-card.span4{grid-column:span 4}
+  .tx-card.span8{grid-column:span 8;flex-direction:row;align-items:stretch;gap:1.4rem}
+}
+.tx-shot{
+  display:block;width:100%;aspect-ratio:4/3;object-fit:cover;
+  border-radius:58% 42% 62% 38% / 42% 58% 38% 62%;
+  background:#ddd center/cover;
+  transition:border-radius .7s var(--ease),transform .7s var(--ease);
+  flex:0 0 46%;
+}
+.tx-card:hover .tx-shot{border-radius:40% 60% 40% 60% / 60% 40% 60% 40%;transform:scale(1.04)}
+.tx-card .num{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;color:var(--punch);font-weight:500;
+}
+.tx-card p{margin:0;color:var(--muted);font-size:.95rem;flex:1}
+.tx-card .go{
+  font-weight:500;display:inline-flex;align-items:center;gap:.35rem;
+}
+.tx-card .go::after{content:"→";transition:transform .35s var(--ease)}
+.tx-card:hover .go::after{transform:translateX(6px)}
+.tx-body{display:flex;flex-direction:column;gap:.55rem;flex:1}
+
+/* sticky first visit */
+.steps{display:grid;gap:2.2rem}
+@media(min-width:900px){
+  .steps{grid-template-columns:.9fr 1.1fr;gap:4rem;align-items:start}
+}
+.steps-sticky{position:sticky;top:calc(var(--header-h) + 1.4rem)}
+.step{
+  border-top:2px solid var(--ink);padding:1.8rem 0 2rem;
+  display:grid;grid-template-columns:auto 1fr;gap:1.2rem;align-items:start;
+}
+.step .k{
+  font-family:var(--display);font-weight:800;
+  font-size:clamp(2.6rem,5vw,4.2rem);color:var(--punch);line-height:1;
+}
+.step p{margin:.45rem 0 0;color:var(--muted);max-width:42ch}
+
+/* pin / scale line */
+.pin{
+  background:var(--ink);color:var(--foam);
+  height:170vh;position:relative;
+}
+.pin-sticky{
+  position:sticky;top:0;height:100vh;
+  display:grid;place-items:center;overflow:hidden;text-align:center;
+  padding:2rem;
+}
+.pin-type{
+  font-family:var(--display);font-weight:800;text-transform:uppercase;
+  font-size:clamp(2.2rem,8vw,6.5rem);letter-spacing:-.05em;line-height:.9;
+  max-width:12ch;
+}
+.pin-type em{font-style:italic;color:var(--punch);text-transform:none}
+
+/* julia + counters */
+.julia-grid{display:grid;gap:2.4rem;align-items:center}
+@media(min-width:880px){.julia-grid{grid-template-columns:.9fr 1.1fr;gap:4rem}}
+.julia-shot{
+  position:relative;aspect-ratio:4/5;
+  border-radius:70% 30% 48% 52% / 38% 62% 38% 62%;
+  background:url("media/corridor.jpg") center/cover #cbb;
+  border:3px solid var(--ink);
+}
+.julia-shot .badge{
+  position:absolute;right:-.6rem;top:12%;
+  background:var(--punch);color:#fff;border-radius:999px;
+  font-family:var(--display);font-weight:800;text-transform:uppercase;
+  font-size:.78rem;letter-spacing:.02em;padding:.7rem 1.1rem;
+  box-shadow:0 12px 28px color-mix(in srgb,var(--punch) 40%,transparent);
+}
+.julia-shot .ph{
+  position:absolute;left:1rem;bottom:1rem;
+  background:var(--foam);border-radius:999px;padding:.45rem .9rem;
+  font-size:.75rem;color:var(--muted);
+}
+.stats{display:grid;gap:1.2rem;margin-top:2rem}
+@media(min-width:640px){.stats{grid-template-columns:repeat(3,1fr)}}
+.stat{
+  border-top:2px solid var(--ink);padding-top:1rem;
+}
+.stat b{
+  display:block;font-family:var(--display);font-weight:800;
+  font-size:clamp(2.3rem,4.5vw,3.4rem);letter-spacing:-.04em;line-height:1;
+  color:var(--cobalt);
+}
+.stat span{display:block;margin-top:.45rem;color:var(--muted);font-size:.9rem;max-width:18ch}
+
+/* faq */
+.faq details{
+  border-top:2px solid var(--ink);padding:.2rem 0;
+}
+.faq details:last-child{border-bottom:2px solid var(--ink)}
+.faq summary{
+  cursor:pointer;list-style:none;font-family:var(--display);font-weight:800;
+  font-size:clamp(1.2rem,2.2vw,1.7rem);letter-spacing:-.03em;
+  padding:1.15rem 2.4rem 1.15rem 0;position:relative;
+}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{
+  content:"+";position:absolute;right:0;top:50%;transform:translateY(-50%);
+  font-size:1.6rem;color:var(--punch);transition:transform .35s var(--ease);
+}
+.faq details[open] summary::after{transform:translateY(-50%) rotate(45deg)}
+.faq details p{margin:0 0 1.2rem;max-width:62ch;color:var(--ink-2)}
+
+/* close / book */
+.close{
+  background:var(--punch);color:#fff;text-align:center;overflow:hidden;
+}
+.close .eyebrow{color:color-mix(in srgb,#fff 70%,var(--punch))}
+.close h2{margin-bottom:1rem}
+.close .lede{margin-inline:auto;color:#fff}
+.close .ctas{justify-content:center}
+
+footer.site{
+  background:var(--ink);color:color-mix(in srgb,var(--foam) 72%,transparent);
+  padding:3.2rem 0 4rem;font-size:.9rem;
+}
+footer.site .cols{display:grid;gap:1.6rem}
+@media(min-width:760px){footer.site .cols{grid-template-columns:1.5fr 1fr 1fr}}
+footer.site a{color:var(--foam);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--foam) 25%,transparent)}
+footer.site strong{
+  color:var(--foam);font-family:var(--display);font-weight:800;
+  text-transform:uppercase;letter-spacing:-.03em;font-size:1.15rem;
+}
+.note{font-size:.78rem;margin-top:2rem;line-height:1.6;max-width:72ch}
+
+/* ==========================================================================
+   MOTION
+   Default: everything visible.
+   html.motion-on is applied by JS. Without it, none of the hiding rules match.
+   ========================================================================== */
+
+html.motion-on.motion-css [data-reveal]{
+  animation:rise linear both;
+  animation-timeline:view();
+  animation-range:entry 0% cover 28%;
+}
+html.motion-on.motion-css [data-reveal].d2{animation-range:entry 8% cover 34%}
+html.motion-on.motion-css [data-reveal].d3{animation-range:entry 14% cover 40%}
+
+@keyframes rise{
+  from{opacity:0;transform:translateY(40px)}
+  to{opacity:1;transform:none}
+}
+
+html.motion-on.motion-css .plane-a{
+  animation:par-a linear both;
+  animation-timeline:scroll();
+  animation-range:0 90vh;
+}
+html.motion-on.motion-css .plane-b{
+  animation:par-b linear both;
+  animation-timeline:scroll();
+  animation-range:0 90vh;
+}
+html.motion-on.motion-css .blob-photo{
+  animation:par-shot linear both;
+  animation-timeline:view();
+  animation-range:entry 0% exit 100%;
+}
+html.motion-on.motion-css .blob-lemon{
+  animation:par-lemon linear both;
+  animation-timeline:scroll();
+  animation-range:0 90vh;
+}
+html.motion-on.motion-css .blob-cobalt{
+  animation:par-cob linear both;
+  animation-timeline:scroll();
+  animation-range:0 90vh;
+}
+@keyframes par-a{to{transform:translate3d(-6%,22%,0)}}
+@keyframes par-b{to{transform:translate3d(0,12%,0)}}
+@keyframes par-shot{from{transform:scale(1.08) rotate(-2deg)}to{transform:scale(1) rotate(3deg)}}
+@keyframes par-lemon{to{transform:translate3d(-40px,-90px,0) rotate(24deg)}}
+@keyframes par-cob{to{transform:translate3d(30px,80px,0) rotate(-18deg)}}
+
+html.motion-on.motion-css .mega span{
+  animation:word linear both;
+  animation-timeline:view();
+  animation-range:entry 8% cover 36%;
+}
+html.motion-on.motion-css .mega span:nth-child(2){animation-range:entry 14% cover 40%}
+html.motion-on.motion-css .mega span:nth-child(3){animation-range:entry 20% cover 46%}
+html.motion-on.motion-css .mega span:nth-child(4){animation-range:entry 26% cover 52%}
+@keyframes word{
+  from{opacity:0;transform:translateY(70px) rotate(-3deg)}
+  to{opacity:1;transform:none}
+}
+
+html.motion-on.motion-css .pin-type{
+  animation:grow linear both;
+  animation-timeline:view();
+  animation-range:cover 0% cover 90%;
+}
+@keyframes grow{
+  from{transform:scale(.55);letter-spacing:-.08em;opacity:.35}
+  to{transform:scale(1.15);letter-spacing:-.03em;opacity:1}
+}
+
+html.motion-on.motion-css .tx-card{
+  animation:rise linear both;
+  animation-timeline:view();
+  animation-range:entry 4% cover 26%;
+}
+html.motion-on.motion-css .tx-card:nth-child(2){animation-range:entry 10% cover 30%}
+html.motion-on.motion-css .tx-card:nth-child(3){animation-range:entry 14% cover 32%}
+html.motion-on.motion-css .tx-card:nth-child(4){animation-range:entry 8% cover 28%}
+html.motion-on.motion-css .tx-card:nth-child(5){animation-range:entry 12% cover 30%}
+html.motion-on.motion-css .tx-card:nth-child(6){animation-range:entry 16% cover 34%}
+
+/* IO fallback — only when JS opted in AND CSS scroll-driven is unavailable */
+html.motion-on.motion-io [data-reveal]{
+  opacity:0;
+  transform:translateY(36px);
+  transition:opacity .7s var(--ease),transform .7s var(--ease);
+}
+html.motion-on.motion-io [data-reveal].is-in{
+  opacity:1;
+  transform:none;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .marquee-track{animation:none!important}
+  html{scroll-behavior:auto}
+  .scroll-cue svg,.scroll-cue__arrow{animation:none!important}
+}
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="emergency">
+  <div class="wrap">
+    <span>Dental emergency? Acute pain, trauma, swelling.</span>
+    <span><a href="../pages/emergency.html">Emergency dentist</a> · <a href="tel:">Call [phone]</a> · Wheelers Hill VIC 3150</span>
+  </div>
+</div>
+
+<header class="site" id="hdr">
+  <div class="wrap">
+    <a class="wordmark" href="#top">Smiles by <span>Design</span></a>
+    <nav class="desk" aria-label="Primary">
+      <a href="#work">Treatments</a>
+      <a href="#visit">First visit</a>
+      <a href="#julia">Dr Julia</a>
+      <a href="#fees">Fees</a>
+    </nav>
+    <a class="btn" href="../pages/contact.html#book"><span class="dot"></span>Book</a>
+    <details class="nav-menu">
+      <summary>Menu ☰</summary>
+      <div class="nav-menu__panel">
+        <a href="#work">Treatments</a>
+        <a href="#visit">First visit</a>
+        <a href="#julia">Dr Julia</a>
+        <a href="#fees">Fees</a>
+        <a href="../pages/emergency.html">Emergency</a>
+        <a href="../pages/contact.html#book">Book an assessment</a>
+      </div>
+    </details>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ================= HERO — 3 depth planes ================= -->
+  <section class="hero" id="top">
+    <p class="vmark">Smiles by Design · Wheelers Hill</p>
+
+    <div class="plane plane-a" aria-hidden="true">CRAFT</div>
+
+    <div class="plane plane-b" aria-hidden="true">
+      <div class="blob blob-photo"></div>
+      <div class="blob blob-lemon"></div>
+      <div class="blob blob-cobalt"></div>
+      <div class="blob blob-arc"></div>
+    </div>
+
+    <div class="plane plane-c wrap">
+      <div class="hero-copy">
+        <p class="eyebrow">Wheelers Hill · Melbourne’s east</p>
+        <h1>
+          <span class="line">Craft</span>
+          <span class="line">dentistry.</span>
+          <span class="line sub">Principal-led care — <em>not a conveyor belt.</em></span>
+        </h1>
+        <p class="lede">A boutique practice for porcelain veneers, implants and restorative work. Dr Julia Nguyen owns the plan and the complex treatment. The practice is built to grow — a dentist can only sit in one chair.</p>
+        <div class="ctas">
+          <a class="btn" href="../pages/contact.html#book"><span class="dot"></span>Book an assessment</a>
+          <a class="btn btn--ghost" href="#work">See treatments</a>
+        </div>
+        <div class="chip"><b>JN</b> Dr Julia Nguyen · general dentist · photo after the shoot</div>
+      </div>
+      <div class="hero-mobile-shot" aria-hidden="true"></div>
+    </div>
+
+    <a class="scroll-cue" href="#work" aria-label="Scroll to treatments">
+      <svg viewBox="0 0 140 140" aria-hidden="true">
+        <defs>
+          <path id="cue-path" d="M70,70 m-48,0 a48,48 0 1,1 96,0 a48,48 0 1,1 -96,0"/>
+        </defs>
+        <text><textPath href="#cue-path">SCROLL · CRAFT · SCROLL · CRAFT · </textPath></text>
+      </svg>
+      <span class="scroll-cue__arrow">↓</span>
+    </a>
+  </section>
+
+  <!-- ================= MARQUEE ================= -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>Veneers</span><span>Implants</span><span>All-on-4</span>
+      <span>Invisalign</span><span>Whitening</span><span>Full-mouth rehab</span>
+      <span>Porcelain</span><span>Principal-led</span>
+      <span>Veneers</span><span>Implants</span><span>All-on-4</span>
+      <span>Invisalign</span><span>Whitening</span><span>Full-mouth rehab</span>
+      <span>Porcelain</span><span>Principal-led</span>
+    </div>
+  </div>
+
+  <!-- ================= MANIFESTO COLOR BLOCK ================= -->
+  <section class="manifest" id="why">
+    <div class="wrap inner manifest-grid">
+      <div>
+        <p class="eyebrow">Why this practice exists</p>
+        <p class="mega" data-reveal>
+          <span>Not</span><span>a</span><span>conveyor</span><span>belt.</span>
+        </p>
+        <p class="lede" data-reveal>Julia reduces what a patient has to take on faith. Written plans, item numbers, appointment length in the room — not a catalogue and a queue. Just because you can do it doesn’t mean you should.</p>
+      </div>
+      <div class="manifest-shot" data-reveal aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <svg class="wave wave--cobalt" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
+    <path fill="currentColor" d="M0,32 C240,80 480,0 720,32 C960,64 1200,8 1440,40 L1440,0 L0,0 Z"/>
+  </svg>
+
+  <section>
+    <div class="wrap">
+      <div class="why">
+        <a href="../pages/about.html" data-reveal>
+          <div class="n">01</div>
+          <h3>Principal-led</h3>
+          <p>Julia owns your plan and the complex work. As the practice grows, some visits sit with a small team she trusts — not a seven-dentist roster.</p>
+        </a>
+        <a href="#work" data-reveal class="d2">
+          <div class="n">02</div>
+          <h3>Craft over catalogue</h3>
+          <p>Veneers, implants, All-on-4, Invisalign. A focused menu, not everything for everyone.</p>
+        </a>
+        <a href="../pages/fees.html" data-reveal class="d3">
+          <div class="n">03</div>
+          <h3>Fees without games</h3>
+          <p>Written quotes after examination. No loss-leader specials. Ranges wait until Julia signs them.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TREATMENTS ================= -->
+  <section id="work">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <p class="eyebrow">Treatments</p>
+        <h2>A short menu,<br>done properly.</h2>
+        <p class="lede">Each door is a real page. Julia assesses what is appropriate — this site does not call you a candidate.</p>
+      </div>
+      <div class="tx">
+        <a class="tx-card span8" href="../pages/veneers.html">
+          <div class="tx-shot" style="background-image:url('media/porcelain.jpg')" aria-hidden="true"></div>
+          <div class="tx-body">
+            <span class="num">01 · Cosmetic</span>
+            <h3>Porcelain veneers</h3>
+            <p>Custom facings to refine shape, colour or gaps. Irreversible enamel preparation — the risks sit on the page, not in the footer.</p>
+            <span class="go">Veneers</span>
+          </div>
+        </a>
+        <a class="tx-card span4" href="../pages/implants.html">
+          <span class="num">02 · Restorative</span>
+          <h3>Dental implants</h3>
+          <p>Single and multiple teeth. Who places the implant is confirmed in the rooms, never implied here.</p>
+          <span class="go">Implants</span>
+        </a>
+        <a class="tx-card span4" href="../pages/all-on-4.html">
+          <span class="num">03 · Complex</span>
+          <h3>All-on-4</h3>
+          <p>Full-arch fixed rehabilitation. A significant clinical and financial decision — planned slowly.</p>
+          <span class="go">All-on-4</span>
+        </a>
+        <a class="tx-card span4" href="../pages/invisalign.html">
+          <span class="num">04 · Aligners</span>
+          <h3>Invisalign</h3>
+          <p>Adult clear aligners. Suitability depends on the bite, not on the marketing.</p>
+          <span class="go">Invisalign</span>
+        </a>
+        <a class="tx-card span4" href="../pages/cosmetic.html">
+          <span class="num">05 · Hub</span>
+          <h3>Cosmetic dentistry</h3>
+          <p>Parent page for veneers and whitening. Invisalign is linked, not nested.</p>
+          <span class="go">Cosmetic</span>
+        </a>
+        <a class="tx-card span6" href="../pages/whitening.html">
+          <span class="num">06 · Cosmetic</span>
+          <h3>Teeth whitening</h3>
+          <p>Professional whitening with a written plan. Kit brand names wait until Julia confirms them.</p>
+          <span class="go">Whitening</span>
+        </a>
+        <a class="tx-card span6" href="../pages/emergency.html">
+          <span class="num">07 · Urgent</span>
+          <h3>Emergency dentist</h3>
+          <p>Acute pain, trauma, swelling. In the header on every page. Hours stay a placeholder until they are real.</p>
+          <span class="go">Emergency</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PINNED TYPE ================= -->
+  <div class="pin" aria-hidden="true">
+    <div class="pin-sticky">
+      <p class="pin-type">Work that has to last <em>decades.</em></p>
+    </div>
+  </div>
+
+  <!-- ================= FIRST VISIT (sticky) ================= -->
+  <section id="visit">
+    <div class="wrap steps">
+      <div class="steps-sticky">
+        <p class="eyebrow">Your first visit</p>
+        <h2>No chair-first<br>sales.</h2>
+        <p class="lede" data-reveal>Four steps, in order, every time. Nothing elective proceeds until you have the plan in writing.</p>
+        <div class="ctas">
+          <a class="btn btn--ghost" href="../pages/new-patients.html">First visit in full</a>
+        </div>
+      </div>
+      <div>
+        <div class="step" data-reveal>
+          <span class="k">01</span>
+          <div>
+            <h3>A proper conversation</h3>
+            <p>What you want changed, and why. No lecture, no upsell while you are lying down.</p>
+          </div>
+        </div>
+        <div class="step" data-reveal>
+          <span class="k">02</span>
+          <div>
+            <h3>Examination</h3>
+            <p>Teeth, gums, bite. Imaging method is confirmed in the rooms — not advertised here as a kit list.</p>
+          </div>
+        </div>
+        <div class="step" data-reveal>
+          <span class="k">03</span>
+          <div>
+            <h3>Your plan, your pace</h3>
+            <p>Options and item numbers in writing. You take it home with zero pressure to book.</p>
+          </div>
+        </div>
+        <div class="step" data-reveal>
+          <span class="k">04</span>
+          <div>
+            <h3>The plan stays in the practice</h3>
+            <p>Julia owns it. Who delivers each visit depends on the work — not a promise that one pair of hands does every appointment.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= JULIA ================= -->
+  <section id="julia">
+    <div class="wrap julia-grid">
+      <div class="julia-shot" data-reveal>
+        <span class="badge">Principal-led</span>
+        <span class="ph">Rooms photography — after the shoot</span>
+      </div>
+      <div>
+        <p class="eyebrow">Your clinician</p>
+        <h2>Dr Julia<br>Nguyen</h2>
+        <p class="lede">Dr Julia Nguyen is a general dentist with over fifteen years of experience in private practice. Bachelor of Dental Science, University of Western Australia, 2009.</p>
+        <div class="stats">
+          <div class="stat" data-reveal>
+            <b class="count" data-to="15" data-suffix="+">15+</b>
+            <span>Years in private practice</span>
+          </div>
+          <div class="stat" data-reveal>
+            <b class="count" data-to="45" data-suffix=" min">45 min</b>
+            <span>New-patient examination</span>
+          </div>
+          <div class="stat" data-reveal>
+            <b>2009</b>
+            <span>BDSc, University of Western Australia</span>
+          </div>
+        </div>
+        <div class="ctas">
+          <a class="btn btn--ghost" href="../pages/about.html">About Julia</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FAQ ================= -->
+  <section class="faq" id="faq">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <p class="eyebrow">FAQ</p>
+        <h2>Common<br>questions.</h2>
+      </div>
+      <details open>
+        <summary>Who will I see?</summary>
+        <p>Dr Julia is the principal. She plans your care and does the complex treatment. A dentist can only see so many people — as the practice grows, some visits (hygiene, reviews, general) may be with clinicians she trusts. Continuity of the plan, not a one-chair ceiling.</p>
+      </details>
+      <details>
+        <summary>How do I book?</summary>
+        <p>Online booking is not live yet. Call <strong>[phone]</strong> once a number is published, or use the <a href="../pages/contact.html#book">contact page</a>.</p>
+      </details>
+      <details>
+        <summary>Do you publish fees?</summary>
+        <p>Not until Julia confirms ranges. You get a written plan with ADA item numbers after examination. See <a href="../pages/fees.html">fees</a>.</p>
+      </details>
+      <details>
+        <summary>Are there risks with cosmetic or implant treatment?</summary>
+        <p>Yes. Invasive and cosmetic work carries recovery and failure notes. Read <a href="../pages/treatment-risks.html">treatment risks</a>. Julia will assess what is appropriate — this site does not call you a candidate.</p>
+      </details>
+    </div>
+  </section>
+
+  <svg class="wave wave--punch" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
+    <path fill="currentColor" d="M0,48 C180,8 360,72 540,32 C720,-8 900,64 1080,28 C1260,-8 1380,40 1440,16 L1440,80 L0,80 Z"/>
+  </svg>
+
+  <!-- ================= BOOK ================= -->
+  <section class="close" id="fees">
+    <div class="wrap">
+      <p class="eyebrow">Start with a conversation</p>
+      <h2>Written quotes.<br>No loss-leaders.</h2>
+      <p class="lede">Book an assessment with Dr Julia. Phone and online booking stay placeholders until they are real. A plan only after she has looked.</p>
+      <div class="ctas">
+        <a class="btn btn--lemon" href="../pages/contact.html#book"><span class="dot"></span>Book an assessment</a>
+        <a class="btn btn--on-dark" href="tel:">Call [phone]</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site">
+  <div class="wrap cols">
+    <div>
+      <strong>Smiles by Design</strong>
+      <p>Dr Julia Nguyen · Wheelers Hill VIC 3150<br>
+         Catchment: Wheelers Hill, Rowville, Glen Waverley, Mulgrave, Mount Waverley.</p>
+      <p>Dental Board of Australia, general registration [AHPRA reg. no.]</p>
+    </div>
+    <div>
+      <p>
+        <a href="../pages/veneers.html">Veneers</a><br>
+        <a href="../pages/implants.html">Implants</a><br>
+        <a href="../pages/all-on-4.html">All-on-4</a><br>
+        <a href="../pages/invisalign.html">Invisalign</a>
+      </p>
+    </div>
+    <div>
+      <p>
+        <a href="../pages/emergency.html">Emergency dentist</a><br>
+        <a href="../pages/treatment-risks.html">Treatment risks</a><br>
+        <a href="../pages/fees.html">Fees</a><br>
+        <a href="../pages/contact.html">Contact</a>
+      </p>
+    </div>
+  </div>
+  <div class="wrap">
+    <p class="note">
+      <strong style="font-size:.78rem;letter-spacing:0;text-transform:none;font-family:var(--body)">Design exploration — Direction B, modern / motion.</strong>
+      Not the live site. Compare with the boutique-luxe preview in <code>site/pages/</code>.
+      Hours, street, phone, AHPRA registration and fees remain placeholders.
+      No testimonials, no before/after imagery, no claim about who places surgical implants.
+      Photography in the blobs is generated studio stills — swap after the shoot.
+    </p>
+  </div>
+</footer>
+
+<script>
+/* Motion opt-in. If this script never runs, the page is fully readable.
+   CSS scroll-driven animations when the engine supports them; IntersectionObserver
+   otherwise. Counters animate only after opt-in — the final figures are already
+   in the HTML. */
+(function () {
+  "use strict";
+
+  var header = document.getElementById("hdr");
+  if (header) {
+    var onScroll = function () {
+      header.classList.toggle("is-stuck", window.scrollY > 12);
+    };
+    addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  }
+
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
+  if (reduce && reduce.matches) return;
+
+  var root = document.documentElement;
+  root.classList.add("motion-on");
+
+  var cssScroll = window.CSS && CSS.supports && (
+    CSS.supports("animation-timeline: view()") ||
+    CSS.supports("animation-timeline", "view()")
+  );
+
+  if (cssScroll) {
+    root.classList.add("motion-css");
+  } else if ("IntersectionObserver" in window) {
+    root.classList.add("motion-io");
+    var els = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+    var vh = window.innerHeight || root.clientHeight;
+    els.forEach(function (el) {
+      if (el.getBoundingClientRect().top < vh * 0.92) el.classList.add("is-in");
+    });
+    var delivered = false;
+    var io = new IntersectionObserver(function (entries) {
+      delivered = true;
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        var el = entry.target;
+        var sibs = el.parentNode ? Array.prototype.slice.call(el.parentNode.children) : [];
+        var i = Math.min(sibs.indexOf(el), 6);
+        el.style.transitionDelay = (i > 0 ? i * 70 : 0) + "ms";
+        el.classList.add("is-in");
+        io.unobserve(el);
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+    els.forEach(function (el) { io.observe(el); });
+    setTimeout(function () {
+      if (!delivered) root.classList.remove("motion-on", "motion-io");
+    }, 2500);
+  } else {
+    root.classList.remove("motion-on");
+    return;
+  }
+
+  function countUp(el) {
+    var to = parseInt(el.getAttribute("data-to"), 10);
+    if (isNaN(to)) return;
+    var suffix = el.getAttribute("data-suffix") || "";
+    var start = null;
+    var dur = 1100;
+    function frame(now) {
+      if (start === null) start = now;
+      var t = Math.min(1, (now - start) / dur);
+      var eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = Math.round(to * eased) + suffix;
+      if (t < 1) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  var counts = Array.prototype.slice.call(document.querySelectorAll(".count[data-to]"));
+  if (!counts.length) return;
+  if ("IntersectionObserver" in window) {
+    var cio = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        countUp(entry.target);
+        cio.unobserve(entry.target);
+      });
+    }, { threshold: 0.4 });
+    counts.forEach(function (el) { cio.observe(el); });
+  }
+})();
+</script>
+</body>
+</html>

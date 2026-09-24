@@ -9,3 +9,8 @@ screenshots/
 .DS_Store
 Thumbs.db
 *.swp
+
+# Private / third-party — never public
+*.pdf
+dental-blog-scrapes/
+seo/semrush-pages/

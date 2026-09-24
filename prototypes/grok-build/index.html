@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smiles by Design — Grok Build</title>
+<meta name="description" content="Design exploration. Boutique cosmetic and restorative dentistry in Wheelers Hill. Principal-led by Dr Julia Nguyen.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+:root {
+  --ink: #2E3630;
+  --ink-soft: #5C635B;
+  --paper: #F4F1EA;
+  --paper-warm: #EDE8DF;
+  --rule: #D8D3C8;
+  --gold: #9C6356;
+  --accent: #3C4F42;
+  --night: #0C0D0E;
+  --night-fg: #F3F0E8;
+  --night-dim: rgba(243,240,232,0.62);
+  --night-faint: rgba(243,240,232,0.28);
+  --font-display: "Instrument Serif", Georgia, serif;
+  --font-body: "Inter Tight", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft: cubic-bezier(0.33, 1, 0.68, 1);
+  --max: 74rem;
+  --measure: 36rem;
+}
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+body::after {
+  content: "";
+  position: fixed; inset: -40%;
+  z-index: 9999; pointer-events: none; opacity: 0.055;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+.seat-chip {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 0.4rem 0.75rem;
+  white-space: nowrap;
+  opacity: 0.85;
+}
+.skip { position: absolute; left: -9999px; }
+.skip:focus { left: 1rem; top: 1rem; z-index: 10000; background: #000; color: #fff; padding: 0.6rem 1rem; }
+.emergency {
+  background: var(--accent); color: #F2F1EA;
+  text-align: center; padding: 0.55rem 1rem; font-size: 0.9rem;
+}
+.emergency a { color: #fff; }
+
+.site-head {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 50;
+  padding: 1.35rem clamp(1rem, 3vw, 2rem);
+}
+.site-head .head-inner {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+}
+.brand-row { display: flex; align-items: center; gap: 0.75rem; }
+.brand {
+  font-family: var(--font-mono); font-size: 0.78rem;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  text-decoration: none; color: inherit;
+}
+.site-nav { display: flex; gap: 1.4rem; align-items: center; }
+.site-nav a {
+  font-family: var(--font-mono); font-size: 0.72rem;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  text-decoration: none; color: inherit; opacity: 0.7;
+}
+.btn-book {
+  opacity: 1 !important;
+  border: 1px solid currentColor; border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+}
+@media (max-width: 720px) {
+  .site-nav .nav-link { display: none; }
+}
+
+.stage { background: #E6E0D6; color: var(--ink); }
+.stage__pin { position: relative; }
+#gl { display: none; }
+.scene { padding: clamp(5.5rem, 12vh, 8rem) clamp(1.25rem, 4vw, 2.5rem) 3rem; }
+.scene__fig { margin: 0 0 1.5rem; }
+.scene__fig img { width: 100%; height: auto; display: block; }
+.mono {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  letter-spacing: 0.16em; text-transform: uppercase;
+}
+h1, .scene__head {
+  font-family: var(--font-display); font-weight: 400;
+  font-size: clamp(2.4rem, 1.3rem + 4vw, 4.8rem);
+  line-height: 1.04; letter-spacing: -0.02em; margin: 0.4rem 0 0;
+  text-wrap: balance;
+}
+h1 em, .scene__head em { font-style: italic; }
+.lede { max-width: var(--measure); margin: 1.35rem 0 0; color: var(--ink-soft); }
+.hero-cta { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1.8rem; }
+.btn {
+  display: inline-flex; align-items: center;
+  padding: 0.7rem 1.15rem; border-radius: 999px;
+  text-decoration: none; font-size: 0.88rem; letter-spacing: 0.04em;
+}
+.btn--primary { background: var(--ink); color: var(--paper); }
+.btn--ghost { border: 1px solid currentColor; color: inherit; }
+.btn--line { border: 1px solid var(--rule); color: var(--accent); }
+.stage__note {
+  font-family: var(--font-mono); font-size: 0.62rem;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  opacity: 0.45; padding: 0 1.25rem 1.5rem;
+}
+.scroll-cue { display: none; }
+
+html.stage-on .stage { height: 260vh; }
+html.stage-on .stage__pin {
+  position: sticky; top: 0; height: 100vh; overflow: hidden;
+}
+html.stage-on #gl {
+  display: block; position: absolute; inset: 0; width: 100%; height: 100%;
+  opacity: 0; transition: opacity 900ms var(--ease-soft);
+}
+html.stage-on #gl.ready { opacity: 1; }
+html.stage-on .stage__scenes {
+  position: absolute; inset: 0; z-index: 4;
+  display: grid;
+}
+html.stage-on .scene {
+  grid-area: 1 / 1; height: 100vh; margin: 0;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 0 clamp(1.4rem, 5vw, 4rem) clamp(3.5rem, 8vh, 5.5rem);
+  opacity: 0; pointer-events: none;
+}
+html.stage-on .scene.is-live { pointer-events: auto; }
+html.stage-on .scene__fig { display: none; }
+html.stage-on .scene__copy { max-width: 34rem; }
+html.stage-on .scroll-cue {
+  display: block; position: absolute; right: 1.6rem; bottom: 1.6rem;
+  z-index: 5; font-family: var(--font-mono); font-size: 0.65rem;
+  letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.45;
+}
+html.stage-on .scene[data-scene="0"] { color: var(--ink); }
+html.stage-on .scene[data-scene="1"] { color: var(--night-fg); }
+html.stage-on .scene[data-scene="1"] .lede { color: var(--night-dim); }
+html.stage-on .scene[data-scene="1"] .btn--primary { background: var(--night-fg); color: var(--night); }
+.site-head { color: var(--head-fg, var(--ink)); }
+
+.wrap { width: min(var(--max), calc(100% - 2.5rem)); margin-inline: auto; padding-block: clamp(3.4rem, 8vw, 6rem); }
+.sec-head { max-width: var(--measure); margin-bottom: 2rem; }
+.sec-head h2 {
+  font-family: var(--font-display); font-weight: 400;
+  font-size: clamp(1.8rem, 1.3rem + 1.6vw, 2.6rem);
+  letter-spacing: -0.02em; margin: 0.4rem 0 0;
+}
+.facts dl {
+  display: grid; gap: 1px; background: var(--rule);
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  border: 1px solid var(--rule);
+}
+.facts div { background: #fff; padding: 1.4rem; }
+.facts dt { color: var(--gold); margin-bottom: 0.4rem; }
+.facts dd { margin: 0; }
+.facts small { display: block; color: var(--ink-soft); font-size: 0.85rem; margin-top: 0.25rem; }
+.treatments { background: #fff; border-block: 1px solid var(--rule); }
+.grid4 {
+  display: grid; gap: 1px; background: var(--rule);
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  border: 1px solid var(--rule);
+}
+.card {
+  background: #fff; padding: 1.7rem 1.6rem;
+  display: flex; flex-direction: column; text-decoration: none; color: inherit;
+}
+.card:hover { background: var(--paper-warm); }
+.card .mono { color: var(--gold); margin-bottom: 0.7rem; }
+.card h3 { font-family: var(--font-display); font-weight: 400; font-size: 1.4rem; margin: 0 0 0.5rem; }
+.card p { color: var(--ink-soft); margin: 0; font-size: 0.95rem; }
+.card .more { margin-top: auto; padding-top: 1.4rem; color: var(--accent); }
+.approach { background: var(--paper-warm); }
+.split { display: grid; gap: 2.5rem; }
+@media (min-width: 62rem) { .split { grid-template-columns: 1fr 1fr; } }
+.pull {
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 1.15rem + 1.3vw, 2.1rem);
+  line-height: 1.25; margin: 0; text-wrap: balance;
+}
+.note { border-top: 1px solid #C9C3B6; padding-top: 1.15rem; }
+.note .mono { color: var(--gold); display: block; margin-bottom: 0.45rem; }
+.note p { color: var(--ink-soft); margin: 0; font-size: 0.95rem; }
+.fees-box { border: 1px solid var(--rule); background: #fff; padding: 2rem; max-width: var(--measure); }
+.fees-box p { color: var(--ink-soft); }
+.closing { background: var(--night); color: var(--night-fg); text-align: center; }
+.closing h2 { color: var(--night-fg); }
+.closing .lede, .closing p { color: var(--night-dim); margin-inline: auto; }
+.closing .hero-cta { justify-content: center; }
+.site-foot { background: var(--night); color: var(--night-faint); padding: 0 0 2.5rem; }
+.site-foot .wrap { border-top: 1px solid rgba(243,240,232,0.12); padding-top: 2rem; display: grid; gap: 1rem; }
+@media (min-width: 48rem) { .site-foot .wrap { grid-template-columns: 1fr auto; align-items: center; } }
+.site-foot a { color: var(--night-fg); }
+.foot-links { display: flex; gap: 1.2rem; flex-wrap: wrap; }
+
+html.motion-on [data-reveal] { opacity: 0; transform: translateY(20px); }
+html.motion-on [data-reveal].seen {
+  opacity: 1; transform: none;
+  transition: opacity 720ms var(--ease-soft), transform 720ms var(--ease-out);
+  transition-delay: var(--d, 0ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  html.motion-on [data-reveal], html.motion-on [data-reveal].seen { opacity: 1; transform: none; }
+  body::after { display: none; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="emergency mono">Dental emergency? <a href="#contact">Call the practice</a> — same-day assessment where we can</div>
+
+<header class="site-head">
+  <div class="head-inner">
+    <div class="brand-row">
+      <a class="brand" href="#">Smiles by Design</a>
+      <span class="seat-chip">Grok Build</span>
+    </div>
+    <nav class="site-nav" aria-label="Primary">
+      <a class="nav-link" href="#treatments">Treatments</a>
+      <a class="nav-link" href="#approach">Approach</a>
+      <a class="btn-book" href="#contact">Book</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="stage" id="stage">
+    <div class="stage__pin">
+      <canvas id="gl" aria-hidden="true"></canvas>
+      <div class="stage__scenes">
+        <article class="scene" data-scene="0">
+          <figure class="scene__fig">
+            <img src="media/bench.jpg" width="1152" height="648" alt="A porcelain veneer standing on a limestone bench.">
+          </figure>
+          <div class="scene__copy">
+            <p class="mono scene__kicker">Wheelers Hill · Victoria</p>
+            <h1>On the bench first.<br>Then <em>the mouth.</em></h1>
+            <p class="lede">Shade and margin are decided on the model. What porcelain can and cannot change is settled before a tooth is touched — and suitability is something Julia assesses in the chair.</p>
+            <div class="hero-cta">
+              <a class="btn btn--primary" href="#contact">Book an assessment</a>
+              <a class="btn btn--ghost" href="#treatments">Treatments</a>
+            </div>
+          </div>
+        </article>
+        <article class="scene" data-scene="1">
+          <figure class="scene__fig">
+            <img src="media/porcelain.jpg" width="1036" height="777" alt="Hand-layered porcelain veneer shells beside a stone model.">
+          </figure>
+          <div class="scene__copy">
+            <p class="mono scene__kicker">The material</p>
+            <h2 class="scene__head">One face.<br>Hand-layered.</h2>
+            <p class="lede">Layered and characterised by hand, then checked against your own teeth in daylight. Every treatment page sets out the risks and recovery alongside the work.</p>
+          </div>
+        </article>
+      </div>
+      <div class="scroll-cue" aria-hidden="true">Scroll</div>
+    </div>
+    <p class="stage__note">Placeholder imagery — AI-generated, not practice photography · Grok Build</p>
+  </section>
+
+  <section class="facts">
+    <div class="wrap">
+      <dl>
+        <div data-reveal><dt class="mono">Principal-led</dt><dd>Julia owns the plan<small>She holds the complex work herself</small></dd></div>
+        <div data-reveal style="--d:90ms"><dt class="mono">Qualification</dt><dd>BDSc (UWA)<small>University of Western Australia, 2009</small></dd></div>
+        <div data-reveal style="--d:180ms"><dt class="mono">Location</dt><dd>Wheelers Hill<small>VIC 3150 — hours to confirm</small></dd></div>
+        <div data-reveal style="--d:270ms"><dt class="mono">Registration</dt><dd>AHPRA registered<small>Registration number on the About page</small></dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="treatments" id="treatments">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <span class="mono">What we do</span>
+        <h2>Considered work, explained before it starts.</h2>
+        <p>Every treatment page sets out what is involved, what it costs as a guide, and the risks and recovery. A plan follows an examination — not a webpage.</p>
+      </div>
+      <div class="grid4">
+        <a class="card" href="#" data-reveal><span class="mono">01</span><h3>Porcelain veneers</h3><p>Tooth preparation, shade and shape planning, and what the porcelain can and cannot change. Julia will assess suitability.</p><span class="more">Read more →</span></a>
+        <a class="card" href="#" data-reveal style="--d:80ms"><span class="mono">02</span><h3>Dental implants</h3><p>Assessment, planning and restoration. Where a case is better placed with a specialist, we say so and refer.</p><span class="more">Read more →</span></a>
+        <a class="card" href="#" data-reveal style="--d:160ms"><span class="mono">03</span><h3>Restorative dentistry</h3><p>Crowns, bridges and rebuilding worn or broken teeth, with the sequence and timing set out before you commit.</p><span class="more">Read more →</span></a>
+        <a class="card" href="#" data-reveal style="--d:240ms"><span class="mono">04</span><h3>Teeth whitening</h3><p>In-chair and take-home options, what each does to sensitivity, and how long results tend to hold.</p><span class="more">Read more →</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="approach" id="approach">
+    <div class="wrap split">
+      <div data-reveal>
+        <span class="mono" style="color:var(--gold);display:block;margin-bottom:1rem">The approach</span>
+        <p class="pull">A dentist can only sit in one chair. So the practice is built around the plan being Julia's, and the day-to-day sitting with a small team she trusts.</p>
+      </div>
+      <div>
+        <div class="note" data-reveal style="--d:80ms"><span class="mono">Assessment first</span><p>Nothing is quoted or promised before an examination. Suitability is something Julia assesses in the chair, not something a website decides.</p></div>
+        <div class="note" data-reveal style="--d:160ms"><span class="mono">Honest referral</span><p>Where treatment is better placed elsewhere, we say so on the page for that treatment and refer.</p></div>
+        <div class="note" data-reveal style="--d:240ms"><span class="mono">Risks stated</span><p>Every cosmetic and invasive treatment page carries its risks and recovery, and there is a treatment risks page in the footer.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="fees" id="fees">
+    <div class="wrap">
+      <div class="sec-head" data-reveal><span class="mono">Fees</span><h2>Published as a guide, not a quote.</h2></div>
+      <div class="fees-box" data-reveal style="--d:100ms">
+        <p>Indicative ranges are published for each treatment so you can plan. What your own treatment costs depends on what the examination finds.</p>
+        <p>You will have a written plan with itemised fees before anything begins. Health fund item numbers are included so you can check your cover.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="closing" id="contact">
+    <div class="wrap">
+      <div data-reveal>
+        <span class="mono" style="color:var(--night-faint);display:block;margin-bottom:1.2rem">Next step</span>
+        <h2>Start with an assessment.</h2>
+        <p class="lede">One appointment to look properly, talk through what is realistic, and put a written plan in front of you. No treatment is booked on the day unless you want it to be.</p>
+        <div class="hero-cta">
+          <a class="btn btn--primary" href="#">Book an assessment</a>
+          <a class="btn btn--ghost" href="#">Call the practice</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <div>
+      <p style="margin:0">Smiles by Design · Wheelers Hill VIC 3150</p>
+      <p class="mono" style="margin:0.45rem 0 0">Dr Julia Nguyen · BDSc (UWA) · AHPRA registered</p>
+    </div>
+    <nav class="foot-links" aria-label="Footer">
+      <a href="#">Treatment risks</a>
+      <a href="#">New patients</a>
+      <a href="#">Privacy</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<script>
+(function () {
+  var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.documentElement.classList.add('motion-on');
+  if (!reduced) document.documentElement.classList.add('stage-on');
+  var targets = document.querySelectorAll('[data-reveal]');
+  if (reduced || !('IntersectionObserver' in window)) {
+    targets.forEach(function (el) { el.classList.add('seen'); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('seen'); io.unobserve(e.target); }
+      });
+    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.12 });
+    targets.forEach(function (el) { io.observe(el); });
+  }
+  var stageEl = document.getElementById('stage');
+  if (stageEl && !reduced) {
+    var GROUND = [[230, 224, 214], [78, 70, 62], [12, 13, 14]];
+    var lerp = function (a, b, t) { return a + (b - a) * t; };
+    var paint = function () {
+      var total = stageEl.offsetHeight - innerHeight;
+      var p = total > 0 ? Math.min(1, Math.max(0, -stageEl.getBoundingClientRect().top / total)) : 0;
+      var seg = p < 0.5 ? 0 : 1;
+      var t = p < 0.5 ? p / 0.5 : (p - 0.5) / 0.5;
+      t = t * t * (3 - 2 * t);
+      var a = GROUND[seg], b = GROUND[seg + 1];
+      stageEl.style.backgroundColor = 'rgb(' + Math.round(lerp(a[0], b[0], t)) + ',' + Math.round(lerp(a[1], b[1], t)) + ',' + Math.round(lerp(a[2], b[2], t)) + ')';
+      document.documentElement.style.setProperty('--head-fg', p > 0.42 ? '#F3F0E8' : '#2E3630');
+    };
+    addEventListener('scroll', paint, { passive: true });
+    addEventListener('resize', paint, { passive: true });
+    paint();
+  }
+  if (!reduced && window.Lenis) {
+    var lenis = new window.Lenis({ duration: 1.1, smoothWheel: true });
+    (function raf(t) { lenis.raf(t); requestAnimationFrame(raf); })(0);
+    document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+      a.addEventListener('click', function (ev) {
+        var id = a.getAttribute('href');
+        if (!id || id.length < 2) return;
+        var el = document.querySelector(id);
+        if (!el) return;
+        ev.preventDefault();
+        lenis.scrollTo(el, { offset: 0 });
+      });
+    });
+  }
+})();
+</script>
+<script type="module">
+const stage = document.getElementById('stage');
+const canvas = document.getElementById('gl');
+const scenes = [...document.querySelectorAll('.scene')];
+const cue = document.querySelector('.scroll-cue');
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const SCENE_AT = [0.08, 0.92];
+
+function readProgress() {
+  const total = stage.offsetHeight - innerHeight;
+  if (total <= 0) return 0;
+  return Math.min(1, Math.max(0, -stage.getBoundingClientRect().top / total));
+}
+function paintScenes(p) {
+  scenes.forEach((el, i) => {
+    const d = Math.abs(p - SCENE_AT[i]);
+    const a = Math.max(0, 1 - d / 0.42);
+    const o = a * a * (3 - 2 * a);
+    el.style.opacity = o.toFixed(3);
+    el.classList.toggle('is-live', o > 0.5);
+  });
+  if (cue) cue.style.opacity = Math.max(0, 1 - p * 5).toFixed(2);
+}
+if (!reduced) {
+  const onScroll = () => paintScenes(readProgress());
+  addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('resize', onScroll, { passive: true });
+  onScroll();
+}
+if (canvas && !reduced) {
+  let THREE;
+  try { THREE = await import('https://cdnjs.cloudflare.com/ajax/libs/three.js/0.169.0/three.module.min.js'); }
+  catch { console.warn('[grok-build] three.js unavailable'); }
+  if (THREE) {
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: true, powerPreference: 'high-performance' });
+      if (!renderer.getContext()) renderer = null;
+    } catch { renderer = null; }
+    if (renderer) {
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+      const small = matchMedia('(pointer: coarse), (max-width: 767px)').matches;
+      const COLS = small ? 160 : 300;
+      const ROWS = small ? 108 : 200;
+      const COUNT = COLS * ROWS;
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+      camera.position.z = 4;
+      const pos = new Float32Array(COUNT * 3);
+      const uvs = new Float32Array(COUNT * 2);
+      let i = 0;
+      for (let y = 0; y < ROWS; y++) {
+        for (let x = 0; x < COLS; x++) {
+          const u = x / (COLS - 1), v = y / (ROWS - 1);
+          pos[i * 3] = u - 0.5; pos[i * 3 + 1] = v - 0.5; pos[i * 3 + 2] = 0;
+          uvs[i * 2] = u; uvs[i * 2 + 1] = v;
+          i++;
+        }
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      geo.setAttribute('aUv', new THREE.BufferAttribute(uvs, 2));
+      const loader = new THREE.TextureLoader();
+      const fromImg = (sel) => new Promise((res) => {
+        const el = document.querySelector(sel);
+        if (!el) return res(null);
+        loader.load(el.currentSrc || el.src, res, undefined, () => res(null));
+      });
+      const [texA, texB] = await Promise.all([
+        fromImg('.scene[data-scene="0"] img'),
+        fromImg('.scene[data-scene="1"] img')
+      ]);
+      if (texA && texB) {
+        for (const t of [texA, texB]) { t.minFilter = THREE.LinearFilter; t.generateMipmaps = false; t.colorSpace = THREE.SRGBColorSpace; }
+        const u = {
+          uTexA: { value: texA }, uTexB: { value: texB },
+          uAspectA: { value: texA.image.width / texA.image.height },
+          uAspectB: { value: texB.image.width / texB.image.height },
+          uPlane: { value: new THREE.Vector2(4, 3) },
+          uMix: { value: 0 }, uDisp: { value: 0 },
+          uSize: { value: 2.2 }, uSpacing: { value: 0.02 },
+          uTime: { value: 0 },
+          uMouse: { value: new THREE.Vector2(1e3, 1e3) },
+          uMouseOn: { value: 0 }
+        };
+        const mat = new THREE.ShaderMaterial({
+          uniforms: u, transparent: true, depthWrite: false,
+          vertexShader: /* glsl */`
+            attribute vec2 aUv;
+            uniform vec2 uPlane, uMouse;
+            uniform float uDisp, uSize, uTime, uMouseOn, uSpacing;
+            varying vec2 vUv; varying float vFade;
+            float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+            void main(){
+              vUv = aUv;
+              float r1 = hash(aUv * 17.3);
+              float r2 = hash(aUv * 91.7 + 3.1);
+              float r3 = hash(aUv * 41.1 + 7.7);
+              vec3 p = vec3(position.xy * uPlane, 0.0);
+              vec3 dir = normalize(vec3(r1 - 0.5, (r2 - 0.5) + 0.22, r3 - 0.5));
+              float amt = uDisp * uSpacing * (1.6 + r1 * 22.0);
+              p += dir * amt;
+              p.x += sin(uTime * 0.31 + r2 * 6.283) * uSpacing * 2.6 * uDisp;
+              p.y += cos(uTime * 0.27 + r1 * 6.283) * uSpacing * 2.6 * uDisp;
+              vec2 d = p.xy - uMouse;
+              float f = exp(-dot(d, d) * 2.8) * 0.22 * uMouseOn;
+              p.xy += normalize(d + 1e-5) * f;
+              vec4 mv = modelViewMatrix * vec4(p, 1.0);
+              gl_PointSize = uSize / max(-mv.z, 0.001);
+              gl_Position = projectionMatrix * mv;
+              vFade = 1.0 - uDisp * 0.16;
+            }`,
+          fragmentShader: /* glsl */`
+            precision highp float;
+            uniform sampler2D uTexA, uTexB;
+            uniform float uAspectA, uAspectB, uMix;
+            uniform vec2 uPlane;
+            varying vec2 vUv; varying float vFade;
+            vec2 cover(vec2 uv, float texA, float planeA){
+              vec2 s = texA > planeA ? vec2(planeA / texA, 1.0) : vec2(1.0, texA / planeA);
+              return (uv - 0.5) * s + 0.5;
+            }
+            void main(){
+              vec2 c = gl_PointCoord - 0.5;
+              float m = smoothstep(0.5, 0.28, length(c));
+              if (m < 0.01) discard;
+              float pa = uPlane.x / uPlane.y;
+              vec3 a = texture2D(uTexA, cover(vUv, uAspectA, pa)).rgb;
+              vec3 b = texture2D(uTexB, cover(vUv, uAspectB, pa)).rgb;
+              gl_FragColor = vec4(mix(a, b, uMix), m * vFade);
+            }`
+        });
+        const points = new THREE.Points(geo, mat);
+        scene.add(points);
+        const mouse = { x: 1e3, y: 1e3, on: 0 };
+        addEventListener('pointermove', (e) => {
+          const r = canvas.getBoundingClientRect();
+          mouse.x = ((e.clientX - r.left) / r.width - 0.5) * u.uPlane.value.x;
+          mouse.y = (0.5 - (e.clientY - r.top) / r.height) * u.uPlane.value.y;
+          mouse.on = 1;
+        }, { passive: true });
+        function resize() {
+          const r = canvas.getBoundingClientRect();
+          if (!r.width || !r.height) return;
+          renderer.setSize(r.width, r.height, false);
+          camera.aspect = r.width / r.height;
+          camera.updateProjectionMatrix();
+          const h = 2 * Math.tan((camera.fov * Math.PI) / 360) * camera.position.z;
+          const w = h * camera.aspect;
+          u.uPlane.value.set(w * 1.08, h * 1.08);
+          const spacing = w / COLS;
+          u.uSpacing.value = spacing;
+          u.uSize.value = spacing * 1.55 * renderer.getPixelRatio();
+        }
+        addEventListener('resize', resize, { passive: true });
+        resize();
+        document.documentElement.classList.add('gl-live');
+        canvas.classList.add('ready');
+        const clock = new THREE.Clock();
+        let raf = 0, visible = true;
+        const io = new IntersectionObserver((ents) => {
+          visible = ents[0].isIntersecting;
+          if (visible && !raf) raf = requestAnimationFrame(tick);
+        }, { threshold: 0.02 });
+        io.observe(stage);
+        function tick() {
+          raf = 0;
+          if (!visible || document.hidden) return;
+          const p = readProgress();
+          const disp = p < 0.22 ? 0 : p < 0.78 ? (p - 0.22) / 0.56 : 1;
+          const mix = p < 0.45 ? 0 : Math.min(1, (p - 0.45) / 0.4);
+          u.uDisp.value = disp * disp * (3 - 2 * disp);
+          u.uMix.value = mix;
+          u.uTime.value = clock.getElapsedTime();
+          u.uMouse.value.set(mouse.x, mouse.y);
+          u.uMouseOn.value = mouse.on;
+          renderer.render(scene, camera);
+          raf = requestAnimationFrame(tick);
+        }
+        raf = requestAnimationFrame(tick);
+      }
+    }
+  }
+}
+</script>
+</body>
+</html>
